@@ -3,11 +3,19 @@ plugins {
 }
 
 repositories {
-    mavenCentral();
+    mavenCentral()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
 }
 
 dependencies {
     implementation 'org.jetbrains:annotations:22.0.0'
     implementation 'org.ow2.asm:asm:9.2'
 
+    implementation('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+    }
 }

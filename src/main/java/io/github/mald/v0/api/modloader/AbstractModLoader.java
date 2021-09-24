@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.github.mald.impl.LoaderPluginLoader;
+import io.github.mald.impl.mixin.MaldMixinBootstrap;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 
 public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCloseable, ModLoader<T> {
@@ -23,7 +24,7 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 			this.systems = new ArrayList<>(paths.size());
 			for(Path mod : this.modFiles) {
 				try {
-					this.systems.add(FileSystems.newFileSystem(mod, null));
+					this.systems.add(FileSystems.newFileSystem(mod, (ClassLoader) null));
 				} catch(IOException e) {
 					throw LoaderPluginLoader.rethrow(e);
 				}
@@ -77,5 +78,8 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 				this.mods.add(meta);
 			}
 		}
+
+		// Why Java? I can tell that this cast is fine. why do I even need to cast - hydos
+		MaldMixinBootstrap.loadMixinMods((List<ModMetadata>) this.mods);
 	}
 }

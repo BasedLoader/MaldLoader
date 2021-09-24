@@ -22,7 +22,9 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	public static final String MALD = "mald";
 	final List<Path> paths;
 
-	public LoaderPluginLoader(List<Path> paths) {this.paths = paths;}
+	public LoaderPluginLoader(List<Path> paths) {
+		this.paths = paths;
+	}
 
 	/**
 	 * @return nothing, because it throws
@@ -41,13 +43,17 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	@Override
 	protected Meta extractMetadata(Path path, FileSystem system) throws IOException {
 		Path mald = system.getPath(MALD + ".properties");
-		if(Files.exists(mald)) {
+		if (Files.exists(mald)) {
 			Properties properties = new Properties();
-			try(BufferedReader reader = Files.newBufferedReader(mald)) {
+			try (BufferedReader reader = Files.newBufferedReader(mald)) {
 				properties.load(reader);
 			}
-			String id = Objects.requireNonNull(properties.getProperty("modid")), init = Objects.requireNonNull(properties.getProperty("init"));
-			return new Meta(path, id, init);
+			String id = Objects.requireNonNull(properties.getProperty("modid")), entry = Objects.requireNonNull(properties.getProperty("entry"));
+			String name = properties.getProperty("name");
+			String description = properties.getProperty("description");
+			String accessWidener = properties.getProperty("accessWidener");
+			String mixinFile = properties.getProperty("mixin");
+			return new Meta(path, id, name, description, accessWidener, mixinFile, entry);
 		}
 		return null;
 	}
@@ -55,16 +61,16 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	public List<LoaderPlugin> init(ClassLoader parent) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		List<Meta> metas = this.getMods();
 		URL[] urls = new URL[metas.size()];
-		for(int i = 0; i < metas.size(); i++) {
+		for (int i = 0; i < metas.size(); i++) {
 			Meta mod = metas.get(i);
 			urls[i] = mod.path.toUri().toURL();
 		}
 		URLClassLoader loader = new URLClassLoader(urls, null);
 		ModClassLoader mods = new ModClassLoader(parent, loader);
 		List<LoaderPlugin> plugins = new ArrayList<>();
-		for(Meta meta : metas) {
+		for (Meta meta : metas) {
 			Class<?> cls = Class.forName(meta.pluginClass, false, mods);
-			if(LoaderPlugin.class.isAssignableFrom(cls)) {
+			if (LoaderPlugin.class.isAssignableFrom(cls)) {
 				LoaderPlugin plugin = (LoaderPlugin) cls.newInstance();
 				meta.plugin = plugin;
 				plugin.init();
@@ -79,17 +85,41 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	public static class Meta implements ModMetadata {
 		final Path path;
 		final String id;
+		final String name;
+		final String description;
+		final String mixinFile;
+		final String accessWidener;
 		final String pluginClass;
 		LoaderPlugin plugin;
 
-		public Meta(Path path, String id, String aClass) {
+		public Meta(Path path, String id, String name, String description, String mixinFile, String accessWidener, String pluginClass) {
 			this.path = path;
 			this.id = id;
-			this.pluginClass = aClass;}
+			this.name = name;
+			this.description = description;
+			this.mixinFile = mixinFile;
+			this.accessWidener = accessWidener;
+			this.pluginClass = pluginClass;
+		}
 
 		@Override
 		public String id() {
 			return this.id;
+		}
+
+		@Override
+		public String name() {
+			return name;
+		}
+
+		@Override
+		public String description() {
+			return description;
+		}
+
+		@Override
+		public String mixinFile() {
+			return mixinFile;
 		}
 	}
 }

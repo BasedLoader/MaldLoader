@@ -1,16 +1,5 @@
 package io.github.mald.impl.classloader;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.function.Consumer;
-
 import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.v0.api.modloader.ModLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
@@ -18,6 +7,13 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+
+import java.io.File;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Consumer;
 
 public class Main implements Opcodes {
 	public static void main(String[] args) throws Throwable {
@@ -71,7 +67,7 @@ public class Main implements Opcodes {
 		run.visitMaxs(1, 2);
 		run.visitEnd();
 
-		byte code[] = writer.toByteArray();
+		byte[] code = writer.toByteArray();
 		String name = LoaderPluginLoader.MALD + ".Launcher_Generated";
 		Class<?> type = main[0].define(name, code, 0, code.length);
 		Thread thread = Thread.currentThread();
