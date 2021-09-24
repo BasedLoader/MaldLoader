@@ -32,6 +32,7 @@ minecraft {
         client() {
             mainClass("com.maldloader.MinecraftPlugin")
             jvmArgs("-Dmald.loader.mods=$buildDir/resources/test|$buildDir/classes/java/test")
+            jvmArgs("-Dmald.mods=$buildDir/resources/main|$buildDir/classes/java/main")
             jvmArgs("-Dmald.dev=true")
             jvmArgs("-Dmald.main=client")
             jvmArgs("-Dmald.mc.isClient=true")

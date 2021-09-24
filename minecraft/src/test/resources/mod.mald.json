@@ -1,0 +1,8 @@
+{
+  "id": "example_mod",
+  "name": "Example Mod",
+  "description": "All Modloaders will Cope",
+  "mixins": [
+    "examplemod.mixins.json"
+  ]
+}

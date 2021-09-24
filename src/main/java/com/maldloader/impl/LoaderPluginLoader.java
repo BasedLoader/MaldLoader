@@ -69,7 +69,7 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 				plugin.init();
 				plugins.put(meta.id, plugin);
 			} else {
-				throw new UnsupportedOperationException(cls + " does not implement MaldPlugin");
+				throw new UnsupportedOperationException(cls + " does not implement LoaderPlugin");
 			}
 		}
 		return plugins;
