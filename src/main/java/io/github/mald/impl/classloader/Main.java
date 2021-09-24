@@ -2,10 +2,13 @@ package io.github.mald.impl.classloader;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import io.github.mald.impl.LoaderPluginLoader;
@@ -18,12 +21,31 @@ import org.objectweb.asm.Type;
 
 public class Main implements Opcodes {
 	public static void main(String[] args) throws Throwable {
-		extracted(new File(LoaderPluginLoader.MALD + "_plugins"), args);
+		String path = System.clearProperty(LoaderPluginLoader.MALD + ".loaderDirectory");
+		if(path == null) {
+			path = LoaderPluginLoader.MALD + "_plugins";
+		}
+		List<Path> loaderPlugins = new ArrayList<>();
+		File dir = new File(path);
+		if(dir.exists() && dir.isDirectory()) {
+			for(File file : Objects.requireNonNull(dir.listFiles())) {
+				loaderPlugins.add(file.toPath());
+			}
+		}
+
+		String plugins = System.clearProperty(LoaderPluginLoader.MALD + ".loaderPluginJars");
+		if(plugins != null) {
+			for(String s : plugins.split(",")) {
+				loaderPlugins.add(Paths.get(s));
+			}
+		}
+
+		launch(loaderPlugins, args);
 	}
 
-	private static void extracted(File loaderDirectory, String[] args) throws Throwable {
+	public static void launch(List<Path> loaderPlugins, String[] args) throws Throwable {
 		MainClassLoaderImpl[] main = {null};
-		Method method = loadFromFile(loaderDirectory, main);
+		Method method = loadFromFile(loaderPlugins, main);
 
 		// a big hack to minimize the stacktrace size
 		ClassWriter writer = new ClassWriter(0);
@@ -58,8 +80,8 @@ public class Main implements Opcodes {
 		consumer.accept(args);
 	}
 
-	public static Method loadFromFile(File directory, MainClassLoaderImpl[] ref) throws Throwable {
-		LoaderPluginLoader impl = new LoaderPluginLoader(directory);
+	public static Method loadFromFile(List<Path> loaderPlugins, MainClassLoaderImpl[] ref) throws Throwable {
+		LoaderPluginLoader impl = new LoaderPluginLoader(loaderPlugins);
 		List<LoaderPlugin> plugins = impl.init(Main.class.getClassLoader());
 
 		List<ModLoader<?>> loaders = new ArrayList<>();

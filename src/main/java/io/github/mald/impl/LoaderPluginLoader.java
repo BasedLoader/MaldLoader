@@ -1,7 +1,6 @@
 package io.github.mald.impl;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,15 +14,15 @@ import java.util.Objects;
 import java.util.Properties;
 
 import io.github.mald.impl.classloader.ModClassLoader;
+import io.github.mald.v0.api.modloader.AbstractModLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 import io.github.mald.v0.api.modloader.ModMetadata;
-import io.github.mald.v0.api.modloader.DirectoryModLoader;
 
-public class LoaderPluginLoader extends DirectoryModLoader<LoaderPluginLoader.Meta> {
+public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Meta> {
 	public static final String MALD = "mald";
-	public LoaderPluginLoader(File file) {
-		super(file);
-	}
+	final List<Path> paths;
+
+	public LoaderPluginLoader(List<Path> paths) {this.paths = paths;}
 
 	/**
 	 * @return nothing, because it throws
@@ -32,6 +31,11 @@ public class LoaderPluginLoader extends DirectoryModLoader<LoaderPluginLoader.Me
 	@SuppressWarnings("unchecked")
 	public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
 		throw (T) throwable;
+	}
+
+	@Override
+	protected List<Path> resolveMods() {
+		return this.paths;
 	}
 
 	@Override
