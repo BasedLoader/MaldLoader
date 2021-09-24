@@ -57,7 +57,7 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 
 	@Override
 	protected List<ModFiles> resolveModFiles() {
-		return Main.getPathsViaProperty("mald.mc", "mods");
+		return Main.getPathsViaProperty("mald.loader", "mods");
 	}
 
 	@Override

@@ -35,7 +35,7 @@ public class Main {
 
 	// todo make this resolve mod files rather than path
 	public static List<ModFiles> getPathsViaProperty0(String namespace, String defaultDirectory) throws IOException {
-		String path = System.clearProperty(namespace + ".modDir");
+		String path = System.getProperty(namespace + ".modDir");
 		if(path == null) {
 			path = defaultDirectory;
 		}
@@ -49,14 +49,14 @@ public class Main {
 			}
 		}
 
-		String plugins = System.clearProperty(namespace + ".mods");
+		String plugins = System.getProperty(namespace + ".mods");
 		if(plugins != null) {
-			for(String s : plugins.split(",")) {
+			for(String s : plugins.split(";")) {
 				loaderPlugins.add(ModFiles.autoDetect(Paths.get(s)));
 			}
 		}
 
-		String lsv = System.clearProperty(namespace + ".modlist");
+		String lsv = System.getProperty(namespace + ".modlist");
 		if(lsv != null) {
 			try(BufferedReader reader = Files.newBufferedReader(Paths.get(lsv))) {
 				String[] split = reader.readLine().split(" ");

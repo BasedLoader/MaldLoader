@@ -14,12 +14,15 @@ import io.github.mald.v0.api.classloader.MainClassLoader;
 import org.jetbrains.annotations.Nullable;
 
 public class ModFiles implements AutoCloseable {
+	public static final ModFiles EMPTY = new ModFiles(Collections.emptyList(), Collections.emptyList());
 	public final Iterable<Path> files;
 	public final Iterable<Path> roots;
 	private final AutoCloseable onClose;
 
 	public static ModFiles autoDetect(Path path) throws IOException {
-		if(Files.isDirectory(path)) {
+		if(!Files.exists(path)) {
+			return EMPTY;
+		} else if(Files.isDirectory(path)) {
 			return directory(path);
 		} else {
 			return jar(path);

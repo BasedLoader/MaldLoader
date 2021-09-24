@@ -1,8 +1,15 @@
 plugins {
     id 'java'
+    id 'maven-publish'
+    id 'amalgamation-minecraft' // todo switch to vanillagradle when hydos is crabn't
 }
 
 version '1.0.0'
+
+configurations {
+    testMinecraft {}
+    testImplementation.extendsFrom(testMinecraft)
+}
 
 dependencies {
     implementation rootProject
@@ -11,4 +18,27 @@ dependencies {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
+
+    testMinecraft ag.client("1.17.1")
+    testMinecraft ag.libraries("1.17.1")
+}
+
+task testDiff(type: JavaExec) {
+    group = "tests"
+    description = "Test Diff:tm:"
+    classpath sourceSets.main.runtimeClasspath
+    main = "io.github.mald.MinecraftPlugin"
+    def natives = ag.natives('1.17.1')
+    //systemProperty("fabric.development", true)
+    def cp = configurations.testMinecraft.resolve().join(";")
+    println cp
+    systemProperty("mald.mc.mods", cp)
+    systemProperty("mald.dev", true)
+    //systemProperty("fabric.gameVersion", '1.17.1')
+    systemProperty("java.library.globalCache", natives)
+    systemProperty("org.lwjgl.librarypath", natives)
+    def assets = ag.assets('1.17.1')
+    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir)
+    workingDir("$rootDir/run")
+    dependsOn tasks.classes
 }
