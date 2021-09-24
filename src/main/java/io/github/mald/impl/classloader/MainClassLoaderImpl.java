@@ -1,5 +1,6 @@
 package io.github.mald.impl.classloader;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -10,6 +11,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.v0.api.NullClassLoader;
 import io.github.mald.v0.api.classloader.ChildClassLoader;
 import io.github.mald.v0.api.classloader.ExtendedClassLoader;
@@ -165,13 +167,15 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 
 		try {
 			return fallback.get(this.loader, name);
-		} catch(Throwable e) {
+		} catch(ClassNotFoundException e) {
 			return null;
+		} catch(IOException e) {
+			throw Main.rethrow(e);
 		}
 	}
 
 	interface Fallback<T> {
-		T get(ModClassLoader loader, String name) throws Throwable;
+		T get(ModClassLoader loader, String name) throws ClassNotFoundException, IOException;
 	}
 
 	public static class DynURLClassLoader extends URLClassLoader {

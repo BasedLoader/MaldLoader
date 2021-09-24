@@ -46,12 +46,20 @@ public class ModFiles implements AutoCloseable {
 		return new ModFiles(path, system.getRootDirectories(), system);
 	}
 
-	public ModFiles(Iterable<Path> roots, Iterable<Path> files) {
-		this(files, roots, null);
+	public ModFiles(Path path, Iterable<Path> roots) {
+		this(Collections.singletonList(path), roots, null);
 	}
 
-	public ModFiles(Path path, Iterable<Path> files) {
-		this(path, files, null);
+	public ModFiles(Path path, Path roots, AutoCloseable close) {
+		this(Collections.singletonList(path), roots, close);
+	}
+
+	public ModFiles(Path path, Iterable<Path> roots, AutoCloseable close) {
+		this(Collections.singletonList(path), roots, close);
+	}
+
+	public ModFiles(Iterable<Path> files, Iterable<Path> roots) {
+		this(files, roots, null);
 	}
 
 	public ModFiles(Iterable<Path> files, Iterable<Path> roots, AutoCloseable close) {
@@ -60,9 +68,9 @@ public class ModFiles implements AutoCloseable {
 		this.onClose = close;
 	}
 
-	public ModFiles(Iterable<Path> files, Path path, AutoCloseable close) {
+	public ModFiles(Iterable<Path> files, Path root, AutoCloseable close) {
 		this.files = files;
-		this.roots = Collections.singletonList(path);
+		this.roots = Collections.singletonList(root);
 		this.onClose = close;
 	}
 

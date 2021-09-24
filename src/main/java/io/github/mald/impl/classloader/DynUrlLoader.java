@@ -4,13 +4,15 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 
+import io.github.mald.v0.api.NullClassLoader;
+
 public class DynUrlLoader extends URLClassLoader {
 	public DynUrlLoader(URL[] urls, ClassLoader parent) {
 		super(urls, parent);
 	}
 
 	public DynUrlLoader(URL[] urls) {
-		super(urls);
+		super(urls, NullClassLoader.INSTANCE);
 	}
 
 	public DynUrlLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {

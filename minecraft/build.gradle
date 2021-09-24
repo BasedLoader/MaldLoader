@@ -5,6 +5,7 @@ plugins {
 }
 
 version '1.0.0'
+def mc_vers = "1.16.5"
 
 configurations {
     testMinecraft {}
@@ -19,8 +20,8 @@ dependencies {
         exclude module: 'guava'
     }
 
-    testMinecraft ag.client("1.17.1")
-    testMinecraft ag.libraries("1.17.1")
+    testMinecraft ag.client(mc_vers)
+    testMinecraft ag.libraries(mc_vers)
 }
 
 task testDiff(type: JavaExec) {
@@ -28,17 +29,19 @@ task testDiff(type: JavaExec) {
     description = "Test Diff:tm:"
     classpath sourceSets.main.runtimeClasspath
     main = "io.github.mald.MinecraftPlugin"
-    def natives = ag.natives('1.17.1')
+    def natives = ag.natives(mc_vers)
     //systemProperty("fabric.development", true)
-    def cp = configurations.testMinecraft.resolve().join(";")
+    def cp = configurations.testMinecraft.resolve().collect {it.absoluteFile}.join(";")
     println cp
     systemProperty("mald.mc.mods", cp)
     systemProperty("mald.dev", true)
+    systemProperty("mald.main", "client")
     //systemProperty("fabric.gameVersion", '1.17.1')
     systemProperty("java.library.globalCache", natives)
     systemProperty("org.lwjgl.librarypath", natives)
-    def assets = ag.assets('1.17.1')
-    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir)
+    systemProperty("mald.mc.isClient", true)
+    def assets = ag.assets(mc_vers)
+    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir, "--version", mc_vers, "--accessToken", "FML")
     workingDir("$rootDir/run")
     dependsOn tasks.classes
 }

@@ -102,8 +102,12 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 			if(c != null && resolve) {
 				this.resolveClass(c);
 			}
+
+			if(c == null) {
+				c = super.loadClass(name, resolve);
+			}
+			return c;
 		}
-		return super.loadClass(name, resolve);
 	}
 
 	@Nullable
@@ -146,7 +150,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 
 	int readAll(InputStream stream, byte[] buf) throws IOException {
 		int offset = 0, read;
-		while((read = stream.read(buf)) != -1) {
+		while((read = stream.read(buf, offset, buf.length - offset)) != -1) {
 			offset += read;
 			if(offset >= buf.length) {
 				this.readBuffer = buf = Arrays.copyOf(buf, buf.length << 1);

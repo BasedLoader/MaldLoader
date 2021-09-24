@@ -162,7 +162,7 @@ public class Main {
 
 			String property = System.getProperty(LoaderPluginLoader.MALD + ".main");
 			if(property == null) {
-				throw new IllegalStateException("no main class property set! " + mainClasses.keySet());
+				throw new IllegalStateException("no main class property set! " + mainClasses);
 			}
 			Class<?> cls = mainClasses.get(property);
 			if(cls == null) {
