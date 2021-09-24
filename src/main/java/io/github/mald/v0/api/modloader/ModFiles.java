@@ -1,6 +1,7 @@
 package io.github.mald.v0.api.modloader;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -9,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import io.github.mald.v0.api.classloader.MainClassLoader;
 import org.jetbrains.annotations.Nullable;
 
 public class ModFiles implements AutoCloseable {
@@ -24,6 +26,10 @@ public class ModFiles implements AutoCloseable {
 		}
 	}
 
+	public static ModFiles directory(Iterable<Path> directories) {
+		return new ModFiles(directories, directories);
+	}
+
 	public static ModFiles directory(Path... directory) {
 		List<Path> paths = Arrays.asList(directory);
 		return new ModFiles(paths, paths);
@@ -37,7 +43,7 @@ public class ModFiles implements AutoCloseable {
 		return new ModFiles(path, system.getRootDirectories(), system);
 	}
 
-	public ModFiles(List<Path> roots, Iterable<Path> files) {
+	public ModFiles(Iterable<Path> roots, Iterable<Path> files) {
 		this(files, roots, null);
 	}
 
@@ -57,6 +63,11 @@ public class ModFiles implements AutoCloseable {
 		this.onClose = close;
 	}
 
+	public void addTo(MainClassLoader loader) throws MalformedURLException {
+		for(Path file : this.files) {
+			loader.offer(file.toUri().toURL());
+		}
+	}
 
 	@Override
 	public void close() throws Exception {

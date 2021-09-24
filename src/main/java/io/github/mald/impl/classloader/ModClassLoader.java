@@ -23,7 +23,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 	LazyDefiner preParent = name -> null, postParent = name -> null;
 	byte[] readBuffer = new byte[8196];
 
-	public ModClassLoader(ClassLoader mods, ClassLoader parent) {
+	public ModClassLoader(ClassLoader parent, ClassLoader mods) {
 		super(parent);
 		this.mods = mods;
 	}

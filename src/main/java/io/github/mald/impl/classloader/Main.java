@@ -79,6 +79,16 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 		List<ModFiles> loaderPlugins = getPathsViaProperty(LoaderPluginLoader.MALD, LoaderPluginLoader.MALD + "_plugins");
+		if(Boolean.getBoolean(LoaderPluginLoader.MALD + ".dev")) {
+			List<Path> directories = new ArrayList<>();
+			for(String path : System.getProperty("java.class.path").split(File.pathSeparator)) {
+				Path p = Paths.get(path);
+				if(Files.isDirectory(p)) {
+					directories.add(p);
+				}
+			}
+			loaderPlugins.add(ModFiles.directory(directories));
+		}
 		launch(loaderPlugins, args);
 	}
 

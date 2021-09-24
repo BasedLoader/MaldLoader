@@ -25,7 +25,11 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 
 	public List<ModFiles> getFiles() {
 		if(this.resolvedFiles == null) {
-			return this.resolvedFiles = this.resolveModFiles();
+			try {
+				return this.resolvedFiles = this.resolveModFiles();
+			} catch(IOException e) {
+				throw Main.rethrow(e);
+			}
 		} else {
 			return this.resolvedFiles;
 		}
@@ -47,7 +51,7 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 				this.loadMod(file);
 			}
 		}
-		return null;
+		return this.mods;
 	}
 
 	protected void loadMod(ModFiles files) {
@@ -79,7 +83,7 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 		}
 	}
 
-	protected abstract List<ModFiles> resolveModFiles();
+	protected abstract List<ModFiles> resolveModFiles() throws IOException;
 
 	@Nullable
 	protected abstract T getMetadata(ModFiles path) throws IOException;

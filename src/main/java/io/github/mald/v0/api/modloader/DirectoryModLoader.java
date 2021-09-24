@@ -1,6 +1,7 @@
 package io.github.mald.v0.api.modloader;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +17,12 @@ public abstract class DirectoryModLoader<T extends ModMetadata> extends Abstract
 	}
 
 	@Override
-	protected List<Path> resolveMods() {
+	protected List<ModFiles> resolveModFiles() throws IOException {
 		File[] files = this.directory.listFiles();
-		List<Path> paths = new ArrayList<>();
+		List<ModFiles> paths = new ArrayList<>();
 		for(File file : files) {
-			paths.add(file.toPath());
+			paths.add(ModFiles.autoDetect(file.toPath()));
 		}
 		return paths;
 	}
-
 }
