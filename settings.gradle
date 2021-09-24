@@ -23,3 +23,5 @@ pluginManagement {
 }
 
 include 'minecraft'
+include 'staticInjector'
+
