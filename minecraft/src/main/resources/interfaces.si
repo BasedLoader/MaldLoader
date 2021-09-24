@@ -1,0 +1,6 @@
+staticInjector	v1	named
+
+# This is a comment
+client net/minecraft/client/Minecraft InterfaceA
+server net/minecraft/client/Minecraft InterfaceB
+common net/minecraft/client/Minecraft InterfaceB

@@ -14,6 +14,10 @@ pluginManagement {
             url = uri("https://files.minecraftforge.net/maven")
         }
         maven {
+            name = "Sponge"
+            url = uri("https://repo.spongepowered.org/repository/maven-public/")
+        }
+        maven {
             url = uri("https://jitpack.io")
         }
     }
@@ -22,6 +26,7 @@ pluginManagement {
     }
 }
 
+includeBuild("../MaldGradle")
 include 'minecraft'
 include 'staticInjector'
 

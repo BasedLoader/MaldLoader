@@ -1,47 +1,72 @@
 plugins {
-    id 'java'
-    id 'maven-publish'
-    id 'amalgamation-minecraft' // todo switch to vanillagradle when hydos is crabn't
+    id("java")
+    id("com.maldloader.gradle.vanilla") version "0.3.0"
 }
 
-version '1.0.0'
-def mc_vers = "1.16.5"
+group = "com.maldloader"
+version = "1.0-SNAPSHOT"
 
-configurations {
-    testMinecraft {}
-    testImplementation.extendsFrom(testMinecraft)
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
 }
 
 dependencies {
-    implementation rootProject
-    implementation 'com.google.code.gson:gson:2.8.8'
+    implementation "com.maldloader:MaldLoader:0.1"
+
     implementation('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
         exclude module: 'launchwrapper'
         exclude module: 'guava'
     }
-
-    testMinecraft ag.client(mc_vers)
-    testMinecraft ag.libraries(mc_vers)
 }
 
-task testDiff(type: JavaExec) {
-    group = "tests"
-    description = "Test Diff:tm:"
-    classpath sourceSets.main.runtimeClasspath
-    main = "io.github.mald.MinecraftPlugin"
-    def natives = ag.natives(mc_vers)
-    //systemProperty("fabric.development", true)
-    def cp = configurations.testMinecraft.resolve().collect {it.absoluteFile}.join(";")
-    println cp
-    systemProperty("mald.mc.mods", cp)
-    systemProperty("mald.dev", true)
-    systemProperty("mald.main", "client")
-    //systemProperty("fabric.gameVersion", '1.17.1')
-    systemProperty("java.library.globalCache", natives)
-    systemProperty("org.lwjgl.librarypath", natives)
-    systemProperty("mald.mc.isClient", true)
-    def assets = ag.assets(mc_vers)
-    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir, "--version", mc_vers, "--accessToken", "FML")
-    workingDir("$rootDir/run")
-    dependsOn tasks.classes
+minecraft {
+    latestSnapshot()
+
+    runs {
+        server()
+        client() {
+            mainClass("com.maldloader.testmod.MainTest")
+        }
+    }
+
+//    staticInjectors("src/main/resources/interfaces.si")
 }
+
+//dependencies {
+//    implementation rootProject
+//    implementation 'com.google.code.gson:gson:2.8.8'
+//    implementation('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
+//        exclude module: 'launchwrapper'
+//        exclude module: 'guava'
+//    }
+//
+//    testMinecraft ag.client(mc_vers)
+//    testMinecraft ag.libraries(mc_vers)
+//}
+//
+//task testDiff(type: JavaExec) {
+//    group = "tests"
+//    description = "Test Diff:tm:"
+//    classpath sourceSets.main.runtimeClasspath
+//    main = "io.github.mald.MinecraftPlugin"
+//    def natives = ag.natives(mc_vers)
+//    //systemProperty("fabric.development", true)
+//    def cp = configurations.testMinecraft.resolve().collect {it.absoluteFile}.join(";")
+//    println cp
+//    systemProperty("mald.mc.mods", cp)
+//    systemProperty("mald.dev", true)
+//    systemProperty("mald.main", "client")
+//    //systemProperty("fabric.gameVersion", '1.17.1')
+//    systemProperty("java.library.globalCache", natives)
+//    systemProperty("org.lwjgl.librarypath", natives)
+//    systemProperty("mald.mc.isClient", true)
+//    def assets = ag.assets(mc_vers)
+//    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir, "--version", mc_vers, "--accessToken", "no")
+//    workingDir("$rootDir/run")
+//    dependsOn tasks.classes
+//}
