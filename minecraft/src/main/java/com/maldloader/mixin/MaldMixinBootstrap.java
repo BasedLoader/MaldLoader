@@ -6,6 +6,7 @@ import org.spongepowered.asm.service.IMixinServiceBootstrap;
 import org.spongepowered.asm.service.MixinService;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Allows mixin to start
@@ -16,7 +17,8 @@ public class MaldMixinBootstrap implements IMixinServiceBootstrap {
 		MixinService.boot();
         MixinBootstrap.init();
         for (MixinModMetadata mod : mods) {
-            if(!mod.mixinFiles().isEmpty()) {
+	        List<String> files = mod.mixinFiles();
+            if(files != null) {
 	            for(String file : mod.mixinFiles()) {
 		            Mixins.addConfiguration(file);
 	            }

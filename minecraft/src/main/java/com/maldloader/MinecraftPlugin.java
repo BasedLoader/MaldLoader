@@ -1,20 +1,24 @@
 package com.maldloader;
 
 import java.net.MalformedURLException;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import com.maldloader.impl.classloader.Main;
+import com.maldloader.mixin.MaldMixinService;
 import com.maldloader.v0.api.LoaderList;
 import com.maldloader.v0.api.classloader.MainClassLoader;
 import com.maldloader.v0.api.modloader.ModFiles;
 import com.maldloader.v0.api.modloader.ModLoader;
 import com.maldloader.v0.api.plugin.LoaderPlugin;
+import com.maldloader.v0.api.transformer.asm.ClassHeader;
+import com.maldloader.v0.api.transformer.asm.ClassNodeTransformer;
+import org.objectweb.asm.tree.ClassNode;
+import org.spongepowered.asm.mixin.MixinEnvironment;
+import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 
 public class MinecraftPlugin implements LoaderPlugin {
 	private static final Logger LOGGER = Logger.getLogger("MaldLoader/Minecraft");
@@ -22,6 +26,20 @@ public class MinecraftPlugin implements LoaderPlugin {
 
 	@Override
 	public void afterModLoaderInit(LoaderList loader, MainClassLoader classLoader) {
+		classLoader.addClassNodeTransformer(new ClassNodeTransformer() {
+			@Override
+			public void accept(ClassNode node) {
+				IMixinTransformer transformer = MaldMixinService.transformer;
+				//transformer.transformClass(MixinEnvironment.getCurrentEnvironment(), node.name.replace('/', '.'), node);
+			}
+
+			@Override
+			public boolean transforms(ClassHeader header) {
+				return true;
+			}
+		});
+
+
 		for(ModFiles path : Main.getPathsViaProperty("mald.mc", null)) {
 			try {
 				path.addTo(classLoader);

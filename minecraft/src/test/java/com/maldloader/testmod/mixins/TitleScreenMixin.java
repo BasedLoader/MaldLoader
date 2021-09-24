@@ -1,12 +1,13 @@
 package com.maldloader.testmod.mixins;
 
-import net.minecraft.client.gui.screens.TitleScreen;
+import net.minecraft.client.main.Main;
+
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(TitleScreen.class)
+@Mixin(Main.class)
 public class TitleScreenMixin {
 
 	@Inject(method = "<init>()V", at = @At("TAIL"))

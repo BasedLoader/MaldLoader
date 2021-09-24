@@ -31,7 +31,7 @@ import org.spongepowered.asm.util.ReEntranceLock;
 
 public class MaldMixinService implements IMixinService, IClassProvider, IClassBytecodeProvider, ITransformerProvider, IClassTracker {
 
-	static IMixinTransformer transformer;
+	public static IMixinTransformer transformer;
 	private final ReEntranceLock lock = new ReEntranceLock(1);
 
 	@Override
