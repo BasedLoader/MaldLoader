@@ -1,6 +1,13 @@
-package io.github.mald.impl.mixin;
+package io.github.mald.mixin;
 
-import io.github.mald.v0.api.modloader.ModLoader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.platform.container.ContainerHandleURI;
@@ -11,16 +18,15 @@ import org.spongepowered.asm.logging.LoggerAdapterAbstract;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformerFactory;
-import org.spongepowered.asm.service.*;
+import org.spongepowered.asm.service.IClassBytecodeProvider;
+import org.spongepowered.asm.service.IClassProvider;
+import org.spongepowered.asm.service.IClassTracker;
+import org.spongepowered.asm.service.IMixinAuditTrail;
+import org.spongepowered.asm.service.IMixinInternal;
+import org.spongepowered.asm.service.IMixinService;
+import org.spongepowered.asm.service.ITransformer;
+import org.spongepowered.asm.service.ITransformerProvider;
 import org.spongepowered.asm.util.ReEntranceLock;
-
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.util.Collection;
-import java.util.Collections;
 
 public class MaldMixinService implements IMixinService, IClassProvider, IClassBytecodeProvider, ITransformerProvider, IClassTracker {
 
@@ -33,13 +39,13 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 	}
 
 	@Override
-	public ClassNode getClassNode(String name) throws ClassNotFoundException, IOException {
-		return getClassNode(name, true);
+	public ClassNode getClassNode(String name) throws IOException {
+		return this.getClassNode(name, true);
 	}
 
 	@Override
-	public ClassNode getClassNode(String name, boolean runTransformers) throws ClassNotFoundException, IOException {
-		ClassReader reader = new ClassReader(getClassBytes(name, runTransformers));
+	public ClassNode getClassNode(String name, boolean runTransformers) throws IOException {
+		ClassReader reader = new ClassReader(this.getClassBytes(name, runTransformers));
 		ClassNode node = new ClassNode();
 		reader.accept(node, 0);
 		return node;
@@ -51,7 +57,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 	}
 
 	@Override
-	public Class<?> findClass(String name) throws ClassNotFoundException {
+	public Class<?> findClass(String name) {
 		return null;
 	}
 
@@ -101,7 +107,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	@Override
 	public void offer(IMixinInternal internal) {
-		if (internal instanceof IMixinTransformerFactory) {
+		if(internal instanceof IMixinTransformerFactory) {
 			transformer = ((IMixinTransformerFactory) internal).createTransformer();
 		}
 	}
@@ -157,7 +163,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 	public IContainerHandle getPrimaryContainer() {
 		try {
 			return new ContainerHandleURI(this.getClass().getProtectionDomain().getCodeSource().getLocation().toURI());
-		} catch (URISyntaxException e) {
+		} catch(URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -203,11 +209,18 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 			@Override
 			public void log(Level level, String message, Object... params) {
 				String formattedMessage = String.format(message, params);
-				switch (level) {
-					case INFO, WARN -> System.out.println(formattedMessage);
-					case ERROR, FATAL, TRACE -> System.err.println(formattedMessage);
-					default -> {
-					}
+				switch(level) {
+					case INFO:
+					case WARN:
+						System.out.println(formattedMessage);
+						break;
+					case ERROR:
+					case FATAL:
+					case TRACE:
+						System.err.println(formattedMessage);
+						break;
+					default:
+						break;
 				}
 			}
 
@@ -241,8 +254,17 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	public byte[] getClassBytes(String rawName, boolean runTransformers) throws IOException {
 		String name = rawName.replace('.', '/') + ".class";
-		try (InputStream iStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
-			return iStream.readAllBytes();
+		try(InputStream iStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
+			byte[] bytes = new byte[1024];
+			int read, offset = 0;
+			while((read = iStream.read(bytes, offset, bytes.length - offset)) != -1) {
+				offset += read;
+				if(offset >= bytes.length) {
+					bytes = Arrays.copyOf(bytes, bytes.length * 2);
+				}
+			}
+
+			return bytes;
 		}
 	}
 }

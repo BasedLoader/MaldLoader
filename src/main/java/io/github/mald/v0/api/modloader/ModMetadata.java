@@ -26,6 +26,7 @@ public interface ModMetadata {
 		String id, licence, version;
 		String name;
 		String[] authors;
+		String description;
 		Map<String, String> urls;
 
 		public String getName() {
@@ -56,6 +57,16 @@ public interface ModMetadata {
 		@Override
 		public String id() {
 			return this.getId();
+		}
+
+		@Override
+		public String name() {
+			return this.name;
+		}
+
+		@Override
+		public String description() {
+			return this.description;
 		}
 	}
 }

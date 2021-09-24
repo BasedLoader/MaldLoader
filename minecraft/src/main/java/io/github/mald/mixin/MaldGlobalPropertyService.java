@@ -1,8 +1,7 @@
-package io.github.mald.impl.mixin;
+package io.github.mald.mixin;
 
 import org.spongepowered.asm.service.IGlobalPropertyService;
 import org.spongepowered.asm.service.IPropertyKey;
-import org.spongepowered.asm.service.mojang.Blackboard;
 
 import java.util.HashMap;
 import java.util.Map;

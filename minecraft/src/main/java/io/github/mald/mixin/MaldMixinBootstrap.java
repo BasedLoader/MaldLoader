@@ -1,4 +1,4 @@
-package io.github.mald.impl.mixin;
+package io.github.mald.mixin;
 
 import io.github.mald.v0.api.modloader.ModMetadata;
 import org.spongepowered.asm.launch.MixinBootstrap;
@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.service.IMixinServiceBootstrap;
 import org.spongepowered.asm.service.MixinService;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,12 +14,15 @@ import java.util.List;
  */
 public class MaldMixinBootstrap implements IMixinServiceBootstrap {
 
-    public static void loadMixinMods(List<ModMetadata> mods) {
+    public static <T extends MixinModMetadata> void loadMixinMods(Collection<T> mods) {
 		MixinService.boot();
         MixinBootstrap.init();
-        for (ModMetadata mod : mods) {
-            if(mod.mixinFile() != null)
-                Mixins.addConfiguration(mod.mixinFile());
+        for (MixinModMetadata mod : mods) {
+            if(!mod.mixinFiles().isEmpty()) {
+	            for(String file : mod.mixinFiles()) {
+		            Mixins.addConfiguration(file);
+	            }
+            }
         }
     }
 
@@ -29,7 +33,7 @@ public class MaldMixinBootstrap implements IMixinServiceBootstrap {
 
 	@Override
 	public String getServiceClassName() {
-		return "io.github.mald.impl.mixin";
+		return "io.github.mald.mixin";
 	}
 
 	@Override

@@ -17,11 +17,14 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import io.github.mald.impl.classloader.Main;
 import io.github.mald.impl.classloader.ModClassLoader;
+import io.github.mald.mixin.MaldMixinBootstrap;
+import io.github.mald.mixin.MixinModMetadata;
 import io.github.mald.v0.api.LoaderList;
 import io.github.mald.v0.api.NullClassLoader;
 import io.github.mald.v0.api.classloader.DefaultChildClassLoader;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 import io.github.mald.v0.api.modloader.AbstractModLoader;
+import io.github.mald.v0.api.modloader.ModMetadata;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 
 public class MaldLoader extends AbstractModLoader<MaldMod> {
@@ -79,5 +82,10 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 			LOGGER.warning("Two mods with version " + a.getVersion() + " choosing a random one!");
 		}
 		return av.compareTo(bv) > 0 ? a : b;
+	}
+
+	@Override
+	protected void initializeMods() {
+		MaldMixinBootstrap.loadMixinMods(this.mods.values());
 	}
 }

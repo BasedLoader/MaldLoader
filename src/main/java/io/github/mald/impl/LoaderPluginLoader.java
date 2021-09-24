@@ -97,5 +97,15 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 		public String id() {
 			return this.id;
 		}
+
+		@Override
+		public String name() {
+			return this.id;
+		}
+
+		@Override
+		public String description() {
+			return "loader plugin";
+		}
 	}
 }

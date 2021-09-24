@@ -12,7 +12,7 @@ import java.util.Map;
 
 import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.v0.api.LoaderList;
-import io.github.mald.impl.mixin.MaldMixinBootstrap;
+import io.github.mald.mixin.MaldMixinBootstrap;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 
