@@ -29,6 +29,7 @@ public class ModFiles implements AutoCloseable {
 		}
 	}
 
+
 	public static ModFiles directory(Iterable<Path> directories) {
 		return new ModFiles(directories, directories);
 	}

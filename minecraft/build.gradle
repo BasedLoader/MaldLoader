@@ -36,6 +36,7 @@ task testDiff(type: JavaExec) {
     systemProperty("mald.mc.mods", cp)
     systemProperty("mald.dev", true)
     systemProperty("mald.main", "client")
+    systemProperty("")
     //systemProperty("fabric.gameVersion", '1.17.1')
     systemProperty("java.library.globalCache", natives)
     systemProperty("org.lwjgl.librarypath", natives)

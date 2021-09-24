@@ -52,7 +52,7 @@ public class Main {
 		String plugins = System.getProperty(namespace + ".mods");
 		if(plugins != null) {
 			for(String s : plugins.split(";")) {
-				loaderPlugins.add(ModFiles.autoDetect(Paths.get(s)));
+				extracted(loaderPlugins, s.split("\\|"));
 			}
 		}
 
@@ -60,21 +60,25 @@ public class Main {
 		if(lsv != null) {
 			try(BufferedReader reader = Files.newBufferedReader(Paths.get(lsv))) {
 				String[] split = reader.readLine().split(" ");
-				Path[] paths = new Path[split.length];
-				for(int i = 0; i < split.length; i++) {
-					paths[i] = Paths.get(split[i]);
-				}
-				if(paths.length > 1) {
-					loaderPlugins.add(ModFiles.directory(paths));
-				} else {
-					loaderPlugins.add(ModFiles.autoDetect(paths[0]));
-				}
+				extracted(loaderPlugins, split);
 			} catch(IOException e) {
 				throw rethrow(e);
 			}
 		}
 
 		return loaderPlugins;
+	}
+
+	private static void extracted(List<ModFiles> loaderPlugins, String[] split) throws IOException {
+		Path[] paths = new Path[split.length];
+		for(int i = 0; i < split.length; i++) {
+			paths[i] = Paths.get(split[i]);
+		}
+		if(paths.length > 1) {
+			loaderPlugins.add(ModFiles.directory(paths));
+		} else {
+			loaderPlugins.add(ModFiles.autoDetect(paths[0]));
+		}
 	}
 
 	public static void main(String[] args) throws Throwable {
