@@ -1,10 +1,13 @@
 package io.github.mald;
 
+import java.net.MalformedURLException;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import io.github.mald.impl.classloader.Main;
 import io.github.mald.v0.api.LoaderList;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 import io.github.mald.v0.api.modloader.ModLoader;
@@ -12,6 +15,17 @@ import io.github.mald.v0.api.plugin.LoaderPlugin;
 
 public class MinecraftPlugin implements LoaderPlugin {
 	public static final boolean IS_CLIENT = Boolean.getBoolean("mald.mc.isClient");
+
+	@Override
+	public void afterModLoaderInit(LoaderList loader, MainClassLoader classLoader) {
+		for(Path path : Main.getPathsViaProperty("mald.mc", null)) {
+			try {
+				classLoader.offer(path.toUri().toURL());
+			} catch(MalformedURLException e) {
+				throw Main.rethrow(e);
+			}
+		}
+	}
 
 	@Override
 	public void offerModLoaders(Consumer<ModLoader<?>> loaderConsumer) {

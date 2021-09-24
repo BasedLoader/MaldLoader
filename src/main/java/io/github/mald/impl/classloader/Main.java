@@ -1,7 +1,10 @@
 package io.github.mald.impl.classloader;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -27,10 +30,12 @@ public class Main {
 			path = defaultDirectory;
 		}
 		List<Path> loaderPlugins = new ArrayList<>();
-		File dir = new File(path);
-		if(dir.exists() && dir.isDirectory()) {
-			for(File file : Objects.requireNonNull(dir.listFiles())) {
-				loaderPlugins.add(file.toPath());
+		if(path != null) {
+			File dir = new File(path);
+			if(dir.exists() && dir.isDirectory()) {
+				for(File file : Objects.requireNonNull(dir.listFiles())) {
+					loaderPlugins.add(file.toPath());
+				}
 			}
 		}
 
@@ -38,6 +43,15 @@ public class Main {
 		if(plugins != null) {
 			for(String s : plugins.split(",")) {
 				loaderPlugins.add(Paths.get(s));
+			}
+		}
+
+		String lsv = System.clearProperty(namespace + ".modlist");
+		if(lsv != null) {
+			try(BufferedReader reader = Files.newBufferedReader(Paths.get(lsv))) {
+				loaderPlugins.add(Paths.get(reader.readLine()));
+			} catch(IOException e) {
+				throw rethrow(e);
 			}
 		}
 
@@ -139,5 +153,14 @@ public class Main {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @return nothing, because it throws
+	 * @throws T rethrows {@code throwable}
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
+		throw (T) throwable;
 	}
 }

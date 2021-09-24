@@ -29,15 +29,6 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 		super(null);
 		this.paths = paths;}
 
-	/**
-	 * @return nothing, because it throws
-	 * @throws T rethrows {@code throwable}
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
-		throw (T) throwable;
-	}
-
 	@Override
 	protected List<Path> resolveMods() {
 		return this.paths;

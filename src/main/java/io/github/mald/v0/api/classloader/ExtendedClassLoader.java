@@ -2,7 +2,7 @@ package io.github.mald.v0.api.classloader;
 
 import java.security.SecureClassLoader;
 
-import io.github.mald.impl.LoaderPluginLoader;
+import io.github.mald.impl.classloader.Main;
 
 public interface ExtendedClassLoader {
 	boolean isClassLoaded(String name);
@@ -20,7 +20,7 @@ public interface ExtendedClassLoader {
 			try {
 				return super.findClass(name);
 			} catch(ClassNotFoundException e) {
-				throw LoaderPluginLoader.rethrow(e);
+				throw Main.rethrow(e);
 			}
 		}
 

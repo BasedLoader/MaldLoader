@@ -6,7 +6,6 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
 
-import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.impl.util.BiEnumeration;
 import io.github.mald.v0.api.classloader.ExtendedClassLoader;
 import io.github.mald.v0.api.transformer.Buf;
@@ -87,7 +86,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 						c = this.defineClass(name, buf.code, buf.off, buf.len);
 					}
 				} catch(IOException e) {
-					throw LoaderPluginLoader.rethrow(e);
+					throw Main.rethrow(e);
 				}
 			}
 
@@ -126,7 +125,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 				try {
 					return super.getResources(name);
 				} catch(IOException e) {
-					throw LoaderPluginLoader.rethrow(e);
+					throw Main.rethrow(e);
 				}
 			});
 		} else {

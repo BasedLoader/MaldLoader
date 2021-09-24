@@ -6,7 +6,7 @@ import java.net.URL;
 import java.security.SecureClassLoader;
 import java.util.Enumeration;
 
-import io.github.mald.impl.LoaderPluginLoader;
+import io.github.mald.impl.classloader.Main;
 import io.github.mald.v0.api.NullClassLoader;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +46,7 @@ public class DefaultChildClassLoader extends SecureClassLoader implements ChildC
 		try {
 			return this.loader.getResources(name);
 		} catch(IOException e) {
-			throw LoaderPluginLoader.rethrow(e);
+			throw Main.rethrow(e);
 		}
 	}
 

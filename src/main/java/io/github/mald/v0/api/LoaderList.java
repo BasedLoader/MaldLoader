@@ -3,7 +3,7 @@ package io.github.mald.v0.api;
 import java.util.List;
 import java.util.Map;
 
-import io.github.mald.impl.LoaderPluginLoader;
+import io.github.mald.impl.classloader.Main;
 import io.github.mald.v0.api.modloader.ModLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 
@@ -26,6 +26,6 @@ public class LoaderList {
 				return (T) value;
 			}
 		}
-		throw LoaderPluginLoader.rethrow(new ClassNotFoundException("loader with type " + type));
+		throw Main.rethrow(new ClassNotFoundException("loader with type " + type));
 	}
 }

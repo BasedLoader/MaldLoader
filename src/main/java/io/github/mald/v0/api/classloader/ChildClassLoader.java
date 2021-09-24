@@ -6,6 +6,9 @@ import java.util.Enumeration;
 
 import org.jetbrains.annotations.Nullable;
 
+/**
+ * @see DefaultChildClassLoader
+ */
 public interface ChildClassLoader extends ExtendedClassLoader {
 	/**
 	 * Try to find the class without querying the parent (main) class loader

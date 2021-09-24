@@ -18,13 +18,11 @@ import com.google.gson.Gson;
 import io.github.mald.impl.classloader.Main;
 import io.github.mald.impl.classloader.ModClassLoader;
 import io.github.mald.mixin.MaldMixinBootstrap;
-import io.github.mald.mixin.MixinModMetadata;
 import io.github.mald.v0.api.LoaderList;
 import io.github.mald.v0.api.NullClassLoader;
 import io.github.mald.v0.api.classloader.DefaultChildClassLoader;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 import io.github.mald.v0.api.modloader.AbstractModLoader;
-import io.github.mald.v0.api.modloader.ModMetadata;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 
 public class MaldLoader extends AbstractModLoader<MaldMod> {
@@ -34,11 +32,6 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 
 	public MaldLoader(LoaderPlugin plugin) {
 		super(plugin);
-	}
-
-	@Override
-	protected List<Path> resolveMods() {
-		return Main.getPathsViaProperty("mald.mc", "mods");
 	}
 
 	@Override
@@ -59,23 +52,37 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 	}
 
 	@Override
+	protected List<Path> resolveMods() {
+		return Main.getPathsViaProperty("mald.mc", "mods");
+	}
+
+	@Override
 	protected MaldMod extractMetadata(Path path, FileSystem system) throws IOException {
 		Path json = system.getPath("mod.mald.json");
-		if(!Files.exists(json)) return null;
+		if(!Files.exists(json)) {
+			return null;
+		}
 		try(Reader reader = Files.newBufferedReader(json)) {
 			MaldMod mod = GSON.fromJson(reader, MaldMod.class);
 			mod.path = path;
-			for(String included : mod.include) {
-				Path jijed = system.getPath(included);
-				Path extracted = INCLUDES.resolve(included);
-				Files.createDirectories(extracted.getParent());
-				Files.copy(jijed, extracted);
-				FileSystem sys = FileSystems.newFileSystem(extracted, (ClassLoader) null);
-				this.systems.add(sys);
-				this.modFiles.add(jijed);
+			if(mod.include != null) {
+				for(String included : mod.include) {
+					Path jijed = system.getPath(included);
+					Path extracted = INCLUDES.resolve(included);
+					Files.createDirectories(extracted.getParent());
+					Files.copy(jijed, extracted);
+					FileSystem sys = FileSystems.newFileSystem(extracted, (ClassLoader) null);
+					this.systems.add(sys);
+					this.modFiles.add(jijed);
+				}
 			}
 			return mod;
 		}
+	}
+
+	@Override
+	protected void initializeMods() {
+		MaldMixinBootstrap.loadMixinMods(this.mods.values());
 	}
 
 	@Override
@@ -85,10 +92,5 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 			LOGGER.warning("Two mods with version " + a.getVersion() + " choosing a random one!");
 		}
 		return av.compareTo(bv) > 0 ? a : b;
-	}
-
-	@Override
-	protected void initializeMods() {
-		MaldMixinBootstrap.loadMixinMods(this.mods.values());
 	}
 }

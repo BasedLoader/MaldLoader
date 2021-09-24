@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import io.github.mald.impl.LoaderPluginLoader;
+import io.github.mald.impl.classloader.Main;
 import io.github.mald.v0.api.LoaderList;
 import io.github.mald.mixin.MaldMixinBootstrap;
 import io.github.mald.v0.api.classloader.MainClassLoader;
@@ -38,7 +38,7 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 			try {
 				this.initializeMods();
 			} catch(IOException e) {
-				throw LoaderPluginLoader.rethrow(e);
+				throw Main.rethrow(e);
 			}
 			mods = this.mods;
 		}
@@ -61,7 +61,7 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 				try {
 					this.systems.add(FileSystems.newFileSystem(mod, (ClassLoader) null));
 				} catch(IOException e) {
-					throw LoaderPluginLoader.rethrow(e);
+					throw Main.rethrow(e);
 				}
 			}
 		}
