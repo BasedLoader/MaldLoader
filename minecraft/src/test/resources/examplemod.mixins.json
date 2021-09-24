@@ -1,12 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "com.maldloader.testmod.testmod.mixins",
+  "package": "com.maldloader.testmod.mixins",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "TitleScreenMixin"
   ],
   "client": [
-    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

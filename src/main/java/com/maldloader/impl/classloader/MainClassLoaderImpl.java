@@ -23,6 +23,9 @@ import com.maldloader.v0.api.transformer.asm.ReaderFlagGetter;
 import org.jetbrains.annotations.Nullable;
 
 public class MainClassLoaderImpl extends SecureClassLoader implements MainClassLoader {
+
+	public static MainClassLoaderImpl instance;
+
 	static {
 		registerAsParallelCapable();
 	}
@@ -43,6 +46,7 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 		this.loader.setTransformer(this.transformer);
 		this.loader.setPreParent(this.pre);
 		this.loader.setPostParent(this.post);
+		instance = this;
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.maldloader.impl.classloader.MainClassLoaderImpl;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.platform.container.ContainerHandleURI;
@@ -31,12 +32,7 @@ import org.spongepowered.asm.util.ReEntranceLock;
 public class MaldMixinService implements IMixinService, IClassProvider, IClassBytecodeProvider, ITransformerProvider, IClassTracker {
 
 	static IMixinTransformer transformer;
-
-	private final ReEntranceLock lock;
-
-	public MaldMixinService() {
-		lock = new ReEntranceLock(1);
-	}
+	private final ReEntranceLock lock = new ReEntranceLock(1);
 
 	@Override
 	public ClassNode getClassNode(String name) throws IOException {
@@ -175,7 +171,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	@Override
 	public InputStream getResourceAsStream(String name) {
-		return this.getClass().getClassLoader().getResourceAsStream(name); //TODO: this probably isnt a good idea
+		return MainClassLoaderImpl.instance.getResourceAsStream(name);
 	}
 
 	@Override
@@ -266,5 +262,9 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 			return bytes;
 		}
+	}
+
+	static IMixinTransformer getTransformer() {
+		return transformer;
 	}
 }
