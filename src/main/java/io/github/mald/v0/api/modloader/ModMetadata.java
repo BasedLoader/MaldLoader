@@ -1,5 +1,7 @@
 package io.github.mald.v0.api.modloader;
 
+import java.util.Map;
+
 /**
  * Represents Metadata of a mod such as ID, Name, DisplayName, Dependencies, etc
  */
@@ -10,20 +12,50 @@ public interface ModMetadata {
      */
 	String id();
 
-    /**
-     * The name of the mod
-     */
-    String name();
+	/**
+	 * The name of the mod
+	 */
+	String name();
 
-    /**
-     * The description of the mod
-     */
-    String description();
+	/**
+	 * The description of the mod
+	 */
+	String description();
 
-    //TODO: represent dependencies
+	class Standard implements ModMetadata {
+		String id, licence, version;
+		String name;
+		String[] authors;
+		Map<String, String> urls;
 
-    /**
-     * The path to the mixin configuration file
-     */
-    String mixinFile();
+		public String getName() {
+			return this.name;
+		}
+
+		public String getId() {
+			return this.id;
+		}
+
+		public String getLicence() {
+			return this.licence;
+		}
+
+		public String getVersion() {
+			return this.version;
+		}
+
+
+		public String[] getAuthors() {
+			return this.authors;
+		}
+
+		public Map<String, String> getUrls() {
+			return this.urls;
+		}
+
+		@Override
+		public String id() {
+			return this.getId();
+		}
+	}
 }

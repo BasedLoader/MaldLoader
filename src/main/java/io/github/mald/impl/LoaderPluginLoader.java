@@ -9,7 +9,10 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -23,8 +26,8 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	final List<Path> paths;
 
 	public LoaderPluginLoader(List<Path> paths) {
-		this.paths = paths;
-	}
+		super(null);
+		this.paths = paths;}
 
 	/**
 	 * @return nothing, because it throws
@@ -43,38 +46,35 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	@Override
 	protected Meta extractMetadata(Path path, FileSystem system) throws IOException {
 		Path mald = system.getPath(MALD + ".properties");
-		if (Files.exists(mald)) {
+		if(Files.exists(mald)) {
 			Properties properties = new Properties();
-			try (BufferedReader reader = Files.newBufferedReader(mald)) {
+			try(BufferedReader reader = Files.newBufferedReader(mald)) {
 				properties.load(reader);
 			}
-			String id = Objects.requireNonNull(properties.getProperty("modid")), pluginClass = Objects.requireNonNull(properties.getProperty("init"));
-			String name = properties.getProperty("name");
-			String description = properties.getProperty("description");
-			String accessWidener = properties.getProperty("accessWidener");
-			String mixinFile = properties.getProperty("mixin");
-			return new Meta(path, id, name, description, accessWidener, mixinFile, pluginClass);
+			String id = Objects.requireNonNull(properties.getProperty("modid")), init = Objects.requireNonNull(properties.getProperty("init"));
+			return new Meta(path, id, init);
 		}
 		return null;
 	}
 
-	public List<LoaderPlugin> init(ClassLoader parent) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-		List<Meta> metas = this.getMods();
+	public Map<String, LoaderPlugin> init(ClassLoader parent, ModClassLoader[] ref) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+		Collection<Meta> metas = this.getMods().values();
 		URL[] urls = new URL[metas.size()];
-		for (int i = 0; i < metas.size(); i++) {
-			Meta mod = metas.get(i);
-			urls[i] = mod.path.toUri().toURL();
+		int index = 0;
+		for(Meta meta : metas) {
+			urls[index++] = meta.path.toUri().toURL();
 		}
 		URLClassLoader loader = new URLClassLoader(urls, null);
 		ModClassLoader mods = new ModClassLoader(parent, loader);
-		List<LoaderPlugin> plugins = new ArrayList<>();
-		for (Meta meta : metas) {
+		ref[0] = mods;
+		Map<String, LoaderPlugin> plugins = new HashMap<>();
+		for(Meta meta : metas) {
 			Class<?> cls = Class.forName(meta.pluginClass, false, mods);
-			if (LoaderPlugin.class.isAssignableFrom(cls)) {
+			if(LoaderPlugin.class.isAssignableFrom(cls)) {
 				LoaderPlugin plugin = (LoaderPlugin) cls.newInstance();
 				meta.plugin = plugin;
 				plugin.init();
-				plugins.add(plugin);
+				plugins.put(meta.id, plugin);
 			} else {
 				throw new UnsupportedOperationException(cls + " does not implement MaldPlugin");
 			}
@@ -85,41 +85,17 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	public static class Meta implements ModMetadata {
 		final Path path;
 		final String id;
-		final String name;
-		final String description;
-		final String mixinFile;
-		final String accessWidener;
 		final String pluginClass;
 		LoaderPlugin plugin;
 
-		public Meta(Path path, String id, String name, String description, String mixinFile, String accessWidener, String pluginClass) {
+		public Meta(Path path, String id, String aClass) {
 			this.path = path;
 			this.id = id;
-			this.name = name;
-			this.description = description;
-			this.mixinFile = mixinFile;
-			this.accessWidener = accessWidener;
-			this.pluginClass = pluginClass;
-		}
+			this.pluginClass = aClass;}
 
 		@Override
 		public String id() {
 			return this.id;
-		}
-
-		@Override
-		public String name() {
-			return name;
-		}
-
-		@Override
-		public String description() {
-			return description;
-		}
-
-		@Override
-		public String mixinFile() {
-			return mixinFile;
 		}
 	}
 }

@@ -25,8 +25,8 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 	final ModClassLoader loader;
 	final List<ClassLoader> loaders = new ArrayList<>();
 
-	public MainClassLoaderImpl() {
-		super(new ModClassLoader(new DynURLClassLoader(new URL[] {})));
+	public MainClassLoaderImpl(ClassLoader parent) {
+		super(new ModClassLoader(parent, new DynURLClassLoader(new URL[] {})));
 		this.loader = (ModClassLoader) this.getParent();
 		this.mainLoader = (DynURLClassLoader) this.loader.mods;
 	}
@@ -132,6 +132,10 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 	}
 
 	public static class DynURLClassLoader extends URLClassLoader {
+		static {
+			registerAsParallelCapable();
+		}
+
 		public DynURLClassLoader(URL[] urls) {
 			super(urls, NullClassLoader.INSTANCE);
 		}
