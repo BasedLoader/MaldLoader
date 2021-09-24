@@ -37,7 +37,7 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 	public MainClassLoaderImpl(ClassLoader parent) {
 		super(new ModClassLoader(parent, new DynURLClassLoader(new URL[] {})));
 		this.loader = (ModClassLoader) this.getParent();
-		this.mainLoader = (DynURLClassLoader) this.loader.mods;
+		this.mainLoader = (DynURLClassLoader) (this.loader.mods);
 		this.transformer.transformers.add(this.helper);
 		this.loader.setTransformer(this.transformer);
 		this.loader.setPreParent(this.pre);

@@ -4,11 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -16,28 +13,32 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
+import io.github.mald.impl.classloader.MainClassLoaderImpl;
 import io.github.mald.impl.classloader.ModClassLoader;
 import io.github.mald.v0.api.modloader.AbstractModLoader;
+import io.github.mald.v0.api.modloader.ModFiles;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 import io.github.mald.v0.api.modloader.ModMetadata;
+import org.jetbrains.annotations.Nullable;
 
 public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Meta> {
 	public static final String MALD = "mald";
-	final List<Path> paths;
+	final List<ModFiles> paths;
 
-	public LoaderPluginLoader(List<Path> paths) {
+	public LoaderPluginLoader(List<ModFiles> paths) {
 		super(null);
-		this.paths = paths;}
+		this.paths = paths;
+	}
 
 	@Override
-	protected List<Path> resolveMods() {
+	protected List<ModFiles> resolveModFiles() {
 		return this.paths;
 	}
 
 	@Override
-	protected Meta extractMetadata(Path path, FileSystem system) throws IOException {
-		Path mald = system.getPath(MALD + ".properties");
-		if(Files.exists(mald)) {
+	protected @Nullable LoaderPluginLoader.Meta getMetadata(ModFiles path) throws IOException {
+		Path mald = path.resolveExists(MALD + ".properties");
+		if(mald != null) {
 			Properties properties = new Properties();
 			try(BufferedReader reader = Files.newBufferedReader(mald)) {
 				properties.load(reader);
@@ -48,14 +49,15 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 		return null;
 	}
 
+
 	public Map<String, LoaderPlugin> init(ClassLoader parent, ModClassLoader[] ref) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		Collection<Meta> metas = this.getMods().values();
-		URL[] urls = new URL[metas.size()];
-		int index = 0;
+		MainClassLoaderImpl.DynURLClassLoader loader = new MainClassLoaderImpl.DynURLClassLoader(new URL[0]);
 		for(Meta meta : metas) {
-			urls[index++] = meta.path.toUri().toURL();
+			for(Path file : meta.path.files) {
+				loader.addURL(file.toUri().toURL());
+			}
 		}
-		URLClassLoader loader = new URLClassLoader(urls, null);
 		ModClassLoader mods = new ModClassLoader(parent, loader);
 		ref[0] = mods;
 		Map<String, LoaderPlugin> plugins = new HashMap<>();
@@ -74,12 +76,12 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	}
 
 	public static class Meta implements ModMetadata {
-		final Path path;
+		final ModFiles path;
 		final String id;
 		final String pluginClass;
 		LoaderPlugin plugin;
 
-		public Meta(Path path, String id, String aClass) {
+		public Meta(ModFiles path, String id, String aClass) {
 			this.path = path;
 			this.id = id;
 			this.pluginClass = aClass;}

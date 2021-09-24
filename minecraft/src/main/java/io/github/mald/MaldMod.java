@@ -4,12 +4,13 @@ import java.nio.file.Path;
 import java.util.List;
 
 import io.github.mald.mixin.MixinModMetadata;
+import io.github.mald.v0.api.modloader.ModFiles;
 import io.github.mald.v0.api.modloader.ModMetadata;
 
 public class MaldMod extends ModMetadata.Standard implements MixinModMetadata {
 	List<String> dependency, include;
 	List<String> mixins;
-	Path path;
+	ModFiles files;
 
 	public List<String> getDependency() {
 		return this.dependency;
@@ -19,8 +20,8 @@ public class MaldMod extends ModMetadata.Standard implements MixinModMetadata {
 		return this.include;
 	}
 
-	public Path getPath() {
-		return this.path;
+	public ModFiles getPath() {
+		return this.files;
 	}
 
 	@Override

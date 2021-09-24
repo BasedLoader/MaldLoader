@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.v0.api.LoaderList;
+import io.github.mald.v0.api.modloader.ModFiles;
 import io.github.mald.v0.api.modloader.ModLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
 import org.objectweb.asm.ClassWriter;
@@ -24,17 +25,26 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 public class Main {
-	public static List<Path> getPathsViaProperty(String namespace, String defaultDirectory) {
+	public static List<ModFiles> getPathsViaProperty(String namespace, String defaultDirectory) {
+		try {
+			return getPathsViaProperty0(namespace, defaultDirectory);
+		} catch(IOException e) {
+			throw rethrow(e);
+		}
+	}
+
+	// todo make this resolve mod files rather than path
+	public static List<ModFiles> getPathsViaProperty0(String namespace, String defaultDirectory) throws IOException {
 		String path = System.clearProperty(namespace + ".modDir");
 		if(path == null) {
 			path = defaultDirectory;
 		}
-		List<Path> loaderPlugins = new ArrayList<>();
+		List<ModFiles> loaderPlugins = new ArrayList<>();
 		if(path != null) {
 			File dir = new File(path);
 			if(dir.exists() && dir.isDirectory()) {
 				for(File file : Objects.requireNonNull(dir.listFiles())) {
-					loaderPlugins.add(file.toPath());
+					loaderPlugins.add(ModFiles.autoDetect(file.toPath()));
 				}
 			}
 		}
@@ -42,14 +52,23 @@ public class Main {
 		String plugins = System.clearProperty(namespace + ".mods");
 		if(plugins != null) {
 			for(String s : plugins.split(",")) {
-				loaderPlugins.add(Paths.get(s));
+				loaderPlugins.add(ModFiles.autoDetect(Paths.get(s)));
 			}
 		}
 
 		String lsv = System.clearProperty(namespace + ".modlist");
 		if(lsv != null) {
 			try(BufferedReader reader = Files.newBufferedReader(Paths.get(lsv))) {
-				loaderPlugins.add(Paths.get(reader.readLine()));
+				String[] split = reader.readLine().split(" ");
+				Path[] paths = new Path[split.length];
+				for(int i = 0; i < split.length; i++) {
+					paths[i] = Paths.get(split[i]);
+				}
+				if(paths.length > 1) {
+					loaderPlugins.add(ModFiles.directory(paths));
+				} else {
+					loaderPlugins.add(ModFiles.autoDetect(paths[0]));
+				}
 			} catch(IOException e) {
 				throw rethrow(e);
 			}
@@ -59,11 +78,11 @@ public class Main {
 	}
 
 	public static void main(String[] args) throws Throwable {
-		List<Path> loaderPlugins = getPathsViaProperty(LoaderPluginLoader.MALD, LoaderPluginLoader.MALD + "_plugins");
+		List<ModFiles> loaderPlugins = getPathsViaProperty(LoaderPluginLoader.MALD, LoaderPluginLoader.MALD + "_plugins");
 		launch(loaderPlugins, args);
 	}
 
-	public static void launch(List<Path> loaderPlugins, String[] args) throws Throwable {
+	public static void launch(List<ModFiles> loaderPlugins, String[] args) throws Throwable {
 		MainClassLoaderImpl[] main = {null};
 		Method method = loadFromFile(loaderPlugins, main);
 
@@ -81,8 +100,7 @@ public class Main {
 		MethodVisitor run = writer.visitMethod(Opcodes.ACC_PUBLIC, "accept", "(Ljava/lang/Object;)V", null, null);
 		run.visitVarInsn(Opcodes.ALOAD, 1);
 		run.visitTypeInsn(Opcodes.CHECKCAST, "[Ljava/lang/String;");
-		run.visitMethodInsn(
-				Opcodes.INVOKESTATIC,
+		run.visitMethodInsn(Opcodes.INVOKESTATIC,
 				Type.getInternalName(method.getDeclaringClass()),
 				method.getName(),
 				Type.getMethodDescriptor(method),
@@ -100,7 +118,7 @@ public class Main {
 		consumer.accept(args);
 	}
 
-	public static Method loadFromFile(List<Path> loaderPlugins, MainClassLoaderImpl[] ref) throws Throwable {
+	public static Method loadFromFile(List<ModFiles> loaderPlugins, MainClassLoaderImpl[] ref) throws Throwable {
 		LoaderPluginLoader impl = new LoaderPluginLoader(loaderPlugins);
 		ModClassLoader[] ref1 = {null};
 		Map<String, LoaderPlugin> plugins = impl.init(Main.class.getClassLoader(), ref1);

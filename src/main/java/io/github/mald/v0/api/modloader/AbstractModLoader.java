@@ -3,27 +3,32 @@ package io.github.mald.v0.api.modloader;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import io.github.mald.impl.classloader.Main;
 import io.github.mald.v0.api.LoaderList;
-import io.github.mald.mixin.MaldMixinBootstrap;
 import io.github.mald.v0.api.classloader.MainClassLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
+import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCloseable, ModLoader<T> {
+	private static final Logger LOGGER = LogManager.getLogManager().getLogger("AbstractModLoader");
 	final LoaderPlugin plugin;
-	protected List<Path> modFiles;
-	protected List<FileSystem> systems;
-	protected Map<String, T> mods;
+	List<ModFiles> resolvedFiles;
+	Map<String, T> mods;
 
-	protected AbstractModLoader(LoaderPlugin plugin) {
-		this.plugin = plugin;
+	protected AbstractModLoader(LoaderPlugin plugin) {this.plugin = plugin;}
+
+	public List<ModFiles> getFiles() {
+		if(this.resolvedFiles == null) {
+			return this.resolvedFiles = this.resolveModFiles();
+		} else {
+			return this.resolvedFiles;
+		}
 	}
 
 	@Override
@@ -33,80 +38,58 @@ public abstract class AbstractModLoader<T extends ModMetadata> implements AutoCl
 
 	@Override
 	public Map<String, T> getMods() {
-		Map<String, T> mods = this.mods;
-		if(mods == null) {
-			try {
-				this.initializeMods();
-			} catch(IOException e) {
-				throw Main.rethrow(e);
-			}
-			mods = this.mods;
-		}
-		return mods;
-	}
-
-	@Override
-	public void init(LoaderList maldLoader, MainClassLoader loader) throws MalformedURLException {
-		for(Path mod : this.getModFiles()) {
-			loader.offer(mod.toUri().toURL());
-		}
-	}
-
-	public final List<Path> getModFiles() {
-		List<Path> paths = this.modFiles;
-		if(paths == null) {
-			this.modFiles = paths = this.resolveMods();
-			this.systems = new ArrayList<>(paths.size());
-			for(Path mod : this.modFiles) {
-				try {
-					this.systems.add(FileSystems.newFileSystem(mod, (ClassLoader) null));
-				} catch(IOException e) {
-					throw Main.rethrow(e);
-				}
+		if(this.mods == null) {
+			this.mods = new HashMap<>();
+			List<ModFiles> files = this.getFiles();
+			//noinspection ForLoopReplaceableByForEach
+			for(int i = 0; i < files.size(); i++) {
+				ModFiles file = files.get(i);
+				this.loadMod(file);
 			}
 		}
-		return paths;
+		return null;
 	}
 
-	@Override
-	public void close() throws Exception {
-		if(this.systems != null) {
-			for(FileSystem system : this.systems) {
-				system.close();
-			}
+	protected void loadMod(ModFiles files) {
+		T meta;
+		try {
+			meta = this.getMetadata(files);
+		} catch(IOException e) {
+			throw Main.rethrow(e);
 		}
-	}
-
-	protected abstract List<Path> resolveMods();
-
-	protected abstract T extractMetadata(Path path, FileSystem system) throws IOException;
-
-	protected void initializeMods() throws IOException {
-		this.getModFiles();
-		this.mods = new HashMap<>(this.systems.size());
-		for(int i = 0; i < this.systems.size(); i++) { // must be for index to allow for adding while iterating for JiJ
-			FileSystem system = this.systems.get(i);
-			Path path = this.modFiles.get(i);
-			T meta = this.extractMetadata(path, system);
-			this.offerMod(meta);
-		}
-	}
-
-	protected void offerMod(T meta) {
 		if(meta != null) {
 			T old = this.mods.get(meta.id());
 			if(old != null) {
-				this.mods.put(meta.id(), this.onModIdOverride(old, meta));
+				T replace = this.redundantMod(old, meta);
+				if(replace != old) {
+					this.mods.put(meta.id(), meta);
+				}
 			} else {
 				this.mods.put(meta.id(), meta);
 			}
 		}
-
-		// Why Java? I can tell that this cast is fine. why do I even need to cast - hydos
-		MaldMixinBootstrap.loadMixinMods((List<ModMetadata>) this.mods);
 	}
 
-	protected T onModIdOverride(T a, T b) {
+	@Override
+	public void close() throws Exception {
+		if(this.resolvedFiles != null) {
+			for(ModFiles file : this.resolvedFiles) {
+				file.close();
+			}
+		}
+	}
+
+	protected abstract List<ModFiles> resolveModFiles();
+
+	@Nullable
+	protected abstract T getMetadata(ModFiles path) throws IOException;
+
+	protected T redundantMod(T a, T b) {
+		LOGGER.warning("Multiple mods with id " + a.id() + " choosing a random one!");
 		return a;
+	}
+
+	protected void proposeFile(ModFiles files) {
+		this.getFiles().add(files);
 	}
 }
