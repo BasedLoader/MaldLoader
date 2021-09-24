@@ -14,6 +14,11 @@ import io.github.mald.v0.api.NullClassLoader;
 import io.github.mald.v0.api.classloader.ChildClassLoader;
 import io.github.mald.v0.api.classloader.ExtendedClassLoader;
 import io.github.mald.v0.api.classloader.MainClassLoader;
+import io.github.mald.v0.api.transformer.BufferTransformer;
+import io.github.mald.v0.api.transformer.LazyDefiner;
+import io.github.mald.v0.api.transformer.asm.ClassNodeTransformer;
+import io.github.mald.v0.api.transformer.asm.ClassVisitorTransformer;
+import io.github.mald.v0.api.transformer.asm.ReaderFlagGetter;
 import org.jetbrains.annotations.Nullable;
 
 public class MainClassLoaderImpl extends SecureClassLoader implements MainClassLoader {
@@ -21,19 +26,57 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 		registerAsParallelCapable();
 	}
 
+	// does not require transformation, this is basically just used for resources
 	final DynURLClassLoader mainLoader;
 	final ModClassLoader loader;
 	final List<ClassLoader> loaders = new ArrayList<>();
+	final MultiBufferTransformer transformer = new MultiBufferTransformer();
+	final AsmTransformerHelper helper = new AsmTransformerHelper();
+	final MultiLazyDefiner pre = new MultiLazyDefiner(), post = new MultiLazyDefiner();
 
 	public MainClassLoaderImpl(ClassLoader parent) {
 		super(new ModClassLoader(parent, new DynURLClassLoader(new URL[] {})));
 		this.loader = (ModClassLoader) this.getParent();
 		this.mainLoader = (DynURLClassLoader) this.loader.mods;
+		this.transformer.transformers.add(this.helper);
+		this.loader.setTransformer(this.transformer);
+		this.loader.setPreParent(this.pre);
+		this.loader.setPostParent(this.post);
 	}
 
 	@Override
 	public boolean isClassLoaded(String name) {
 		return this.isClassLoaded(name, null);
+	}
+
+	@Override
+	public void addPreParentDefiner(LazyDefiner definer) {
+		this.pre.definers.add(definer);
+	}
+
+	@Override
+	public void addPostParentDefiner(LazyDefiner definer) {
+		this.post.definers.add(definer);
+	}
+
+	@Override
+	public void addTransformer(BufferTransformer transformer) {
+		this.transformer.transformers.add(transformer);
+	}
+
+	@Override
+	public void addVisitorTransformer(ClassVisitorTransformer transformer) {
+		this.helper.visit.add(transformer);
+	}
+
+	@Override
+	public void addClassNodeTransformer(ClassNodeTransformer transformer) {
+		this.helper.node.add(transformer);
+	}
+
+	@Override
+	public void addReaderFlagGetter(ReaderFlagGetter getter) {
+		this.helper.flags.add(getter);
 	}
 
 	@Override

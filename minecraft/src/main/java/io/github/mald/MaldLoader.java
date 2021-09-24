@@ -51,6 +51,9 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 		}
 		URLClassLoader urlClassLoader = new URLClassLoader(urls);
 		ModClassLoader mod = new ModClassLoader(NullClassLoader.INSTANCE, urlClassLoader);
+
+		// mod transformation can be done here
+
 		DefaultChildClassLoader classLoader = new DefaultChildClassLoader(loader, mod);
 		loader.offer(classLoader);
 	}

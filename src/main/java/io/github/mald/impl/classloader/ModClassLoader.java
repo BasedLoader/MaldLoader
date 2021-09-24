@@ -9,10 +9,12 @@ import java.util.Enumeration;
 import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.impl.util.BiEnumeration;
 import io.github.mald.v0.api.classloader.ExtendedClassLoader;
+import io.github.mald.v0.api.transformer.Buf;
+import io.github.mald.v0.api.transformer.BufferTransformer;
+import io.github.mald.v0.api.transformer.LazyDefiner;
 import org.jetbrains.annotations.Nullable;
 
 public class ModClassLoader extends ExtendedClassLoader.Secure {
-
 	static {
 		registerAsParallelCapable();
 	}
@@ -58,10 +60,24 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 	}
 
 	@Override
+	public Class<?> findClass(String name) {
+		Buf buf = this.postParent.forName(name);
+		if(buf != null) {
+			buf = this.transformer.transform(buf.code, buf.off, buf.len);
+			if(buf != null) {
+				return this.defineClass(name, buf.code, buf.off, buf.len);
+			}
+		}
+		return null;
+	}
+
+	@Override
 	protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-		synchronized (this.getClassLoadingLock(name)) {
+		synchronized(this.getClassLoadingLock(name)) {
 			Class<?> c = this.findLoadedClass(name);
-			if(c != null) return c;
+			if(c != null) {
+				return c;
+			}
 			InputStream stream = this.mods.getResourceAsStream(name.replace('.', '/') + ".class");
 			if(stream != null) {
 				try {
@@ -78,7 +94,10 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 			if(c == null) {
 				Buf buf = this.preParent.forName(name);
 				if(buf != null) {
-					c = this.defineClass(name, buf.code, buf.off, buf.len);
+					Buf tr = this.transformer.transform(buf.code, buf.off, buf.len);
+					if(tr != null) {
+						c = this.defineClass(name, tr.code, tr.off, tr.len);
+					}
 				}
 			}
 			if(c != null && resolve) {
@@ -86,15 +105,6 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 			}
 		}
 		return super.loadClass(name, resolve);
-	}
-
-	@Override
-	public Class<?> findClass(String name) {
-		Buf buf = this.postParent.forName(name);
-		if(buf != null) {
-			return this.defineClass(name, buf.code, buf.off, buf.len);
-		}
-		return null;
 	}
 
 	@Nullable

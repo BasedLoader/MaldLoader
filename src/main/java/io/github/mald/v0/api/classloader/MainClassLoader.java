@@ -4,9 +4,37 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
 
+import io.github.mald.v0.api.transformer.BufferTransformer;
+import io.github.mald.v0.api.transformer.LazyDefiner;
+import io.github.mald.v0.api.transformer.asm.ClassNodeTransformer;
+import io.github.mald.v0.api.transformer.asm.ClassVisitorTransformer;
+import io.github.mald.v0.api.transformer.asm.ReaderFlagGetter;
 import org.jetbrains.annotations.Nullable;
 
 public interface MainClassLoader extends ExtendedClassLoader {
+	/**
+	 * @param definer adds a lazy class that is evaluated before the parent classloader is checked for if a class exists
+	 *  this is useful when trying to override a library class for whatever reason
+	 */
+	void addPreParentDefiner(LazyDefiner definer);
+
+	/**
+	 * @param definer adds a lazy class that is evaluated after the parent classloader is checked for if a class exists
+	 *  this is what you should probably use for most of the use cases of a lazy definer
+	 */
+	void addPostParentDefiner(LazyDefiner definer);
+
+	void addTransformer(BufferTransformer transformer);
+
+	void addVisitorTransformer(ClassVisitorTransformer transformer);
+
+	void addClassNodeTransformer(ClassNodeTransformer transformer);
+
+	/**
+	 * This is necessary if u want to compute max or compute frames, do not always return max or frames though
+	 */
+	void addReaderFlagGetter(ReaderFlagGetter getter);
+
 	Class<?> define(String name, byte[] buf, int off, int len);
 
 	/**

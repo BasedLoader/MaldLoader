@@ -1,4 +1,4 @@
-package io.github.mald.impl.classloader;
+package io.github.mald.v0.api.transformer;
 
 import org.jetbrains.annotations.Nullable;
 
