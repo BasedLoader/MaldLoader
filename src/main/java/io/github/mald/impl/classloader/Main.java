@@ -1,5 +1,6 @@
 package io.github.mald.impl.classloader;
 
+import io.github.mald.impl.DefaultLoaderPlugin;
 import io.github.mald.impl.LoaderPluginLoader;
 import io.github.mald.v0.api.modloader.ModLoader;
 import io.github.mald.v0.api.plugin.LoaderPlugin;
@@ -19,7 +20,7 @@ public class Main implements Opcodes {
 	public static void main(String[] args) throws Throwable {
 		String path = System.clearProperty(LoaderPluginLoader.MALD + ".loaderDirectory");
 		if(path == null) {
-			path = LoaderPluginLoader.MALD + "_plugins";
+			path = LoaderPluginLoader.MALD + "Plugins";
 		}
 		List<Path> loaderPlugins = new ArrayList<>();
 		File dir = new File(path);
@@ -79,6 +80,7 @@ public class Main implements Opcodes {
 	public static Method loadFromFile(List<Path> loaderPlugins, MainClassLoaderImpl[] ref) throws Throwable {
 		LoaderPluginLoader impl = new LoaderPluginLoader(loaderPlugins);
 		List<LoaderPlugin> plugins = impl.init(Main.class.getClassLoader());
+		plugins.add(new DefaultLoaderPlugin());
 
 		List<ModLoader<?>> loaders = new ArrayList<>();
 		for(LoaderPlugin plugin : plugins) {

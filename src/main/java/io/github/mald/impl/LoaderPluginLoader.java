@@ -48,12 +48,12 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 			try (BufferedReader reader = Files.newBufferedReader(mald)) {
 				properties.load(reader);
 			}
-			String id = Objects.requireNonNull(properties.getProperty("modid")), entry = Objects.requireNonNull(properties.getProperty("entry"));
+			String id = Objects.requireNonNull(properties.getProperty("modid")), pluginClass = Objects.requireNonNull(properties.getProperty("init"));
 			String name = properties.getProperty("name");
 			String description = properties.getProperty("description");
 			String accessWidener = properties.getProperty("accessWidener");
 			String mixinFile = properties.getProperty("mixin");
-			return new Meta(path, id, name, description, accessWidener, mixinFile, entry);
+			return new Meta(path, id, name, description, accessWidener, mixinFile, pluginClass);
 		}
 		return null;
 	}
