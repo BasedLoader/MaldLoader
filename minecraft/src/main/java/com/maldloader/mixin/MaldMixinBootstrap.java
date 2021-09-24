@@ -1,6 +1,6 @@
 package com.maldloader.mixin;
 
-import io.github.mald.v0.api.modloader.ModMetadata;
+import com.maldloader.v0.api.modloader.ModMetadata;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.Mixins;
 import org.spongepowered.asm.service.IMixinServiceBootstrap;
@@ -33,7 +33,7 @@ public class MaldMixinBootstrap implements IMixinServiceBootstrap {
 
 	@Override
 	public String getServiceClassName() {
-		return "io.github.mald.mixin";
+		return "com.maldloader.mixin";
 	}
 
 	@Override

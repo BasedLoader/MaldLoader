@@ -3,8 +3,8 @@ package com.maldloader;
 import java.util.List;
 
 import com.maldloader.mixin.MixinModMetadata;
-import io.github.mald.v0.api.modloader.ModFiles;
-import io.github.mald.v0.api.modloader.ModMetadata;
+import com.maldloader.v0.api.modloader.ModFiles;
+import com.maldloader.v0.api.modloader.ModMetadata;
 
 public class MaldMod extends ModMetadata.Standard implements MixinModMetadata {
 	List<String> dependency, include;

@@ -13,17 +13,17 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
-import io.github.mald.impl.classloader.DynUrlLoader;
-import io.github.mald.impl.classloader.Main;
-import io.github.mald.impl.classloader.ModClassLoader;
+import com.maldloader.impl.classloader.DynUrlLoader;
+import com.maldloader.impl.classloader.Main;
+import com.maldloader.impl.classloader.ModClassLoader;
 import com.maldloader.mixin.MaldMixinBootstrap;
-import io.github.mald.v0.api.LoaderList;
-import io.github.mald.v0.api.NullClassLoader;
-import io.github.mald.v0.api.classloader.DefaultChildClassLoader;
-import io.github.mald.v0.api.classloader.MainClassLoader;
-import io.github.mald.v0.api.modloader.AbstractModLoader;
-import io.github.mald.v0.api.modloader.ModFiles;
-import io.github.mald.v0.api.plugin.LoaderPlugin;
+import com.maldloader.v0.api.LoaderList;
+import com.maldloader.v0.api.NullClassLoader;
+import com.maldloader.v0.api.classloader.DefaultChildClassLoader;
+import com.maldloader.v0.api.classloader.MainClassLoader;
+import com.maldloader.v0.api.modloader.AbstractModLoader;
+import com.maldloader.v0.api.modloader.ModFiles;
+import com.maldloader.v0.api.plugin.LoaderPlugin;
 import org.jetbrains.annotations.Nullable;
 
 public class MaldLoader extends AbstractModLoader<MaldMod> {

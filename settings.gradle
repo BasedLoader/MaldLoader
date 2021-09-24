@@ -1,10 +1,11 @@
 pluginManagement {
     repositories {
+        mavenCentral()
+        mavenLocal()
         maven {
             name = "HalfOf2"
             url = uri("https://storage.googleapis.com/devan-maven/")
         }
-        mavenCentral()
         maven {
             name = "FabricMC"
             url = uri("https://maven.fabricmc.net/")
@@ -14,19 +15,10 @@ pluginManagement {
             url = uri("https://files.minecraftforge.net/maven")
         }
         maven {
-            name = "Sponge"
-            url = uri("https://repo.spongepowered.org/repository/maven-public/")
-        }
-        maven {
             url = uri("https://jitpack.io")
         }
     }
-    plugins {
-        id 'amalgamation-minecraft' version "1.0.0"
-    }
 }
 
-includeBuild("../MaldGradle")
-include 'minecraft'
 include 'staticInjector'
 

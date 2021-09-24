@@ -9,12 +9,12 @@ import java.util.function.Consumer;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
-import io.github.mald.impl.classloader.Main;
-import io.github.mald.v0.api.LoaderList;
-import io.github.mald.v0.api.classloader.MainClassLoader;
-import io.github.mald.v0.api.modloader.ModFiles;
-import io.github.mald.v0.api.modloader.ModLoader;
-import io.github.mald.v0.api.plugin.LoaderPlugin;
+import com.maldloader.impl.classloader.Main;
+import com.maldloader.v0.api.LoaderList;
+import com.maldloader.v0.api.classloader.MainClassLoader;
+import com.maldloader.v0.api.modloader.ModFiles;
+import com.maldloader.v0.api.modloader.ModLoader;
+import com.maldloader.v0.api.plugin.LoaderPlugin;
 
 public class MinecraftPlugin implements LoaderPlugin {
 	private static final Logger LOGGER = Logger.getLogger("MaldLoader/Minecraft");
