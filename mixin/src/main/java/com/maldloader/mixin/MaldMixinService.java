@@ -212,13 +212,13 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 			public void log(Level level, String message, Object... params) {
 				String formattedMessage = String.format(message, params);
 				switch(level) {
-					case Level.INFO:
-					case Level.WARN:
+					case INFO:
+					case WARN:
 						System.out.println(formattedMessage);
 						break;
-					case Level.ERROR:
-					case Level.FATAL:
-					case Level.TRACE:
+					case ERROR:
+					case FATAL:
+					case TRACE:
 						System.err.println(formattedMessage);
 						break;
 					default:
