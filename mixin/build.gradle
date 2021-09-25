@@ -1,0 +1,14 @@
+plugins {
+    id 'java'
+    id 'java-library'
+}
+
+dependencies {
+    api rootProject
+    api('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'asm'
+        exclude module: 'asm-tree'
+    }
+}
