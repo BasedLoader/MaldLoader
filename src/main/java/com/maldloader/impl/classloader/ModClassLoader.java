@@ -21,7 +21,6 @@ import com.maldloader.v0.api.classloader.ExtendedClassLoader;
 import com.maldloader.v0.api.transformer.Buf;
 import com.maldloader.v0.api.transformer.BufferTransformer;
 import com.maldloader.v0.api.transformer.LazyDefiner;
-import com.sun.jndi.toolkit.url.UrlUtil;
 import org.jetbrains.annotations.Nullable;
 
 public class ModClassLoader extends ExtendedClassLoader.Secure {
