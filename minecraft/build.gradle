@@ -46,7 +46,6 @@ minecraft {
         client() {
             mainClass("com.maldloader.MinecraftPlugin")
             def cp = configurations.minecraft.resolve().collect {it.absoluteFile}.join(";")
-            println cp
             jvmArgs("-Dmald.mc.mods=$cp")
             jvmArgs("-Dmald.mods=$buildDir/resources/main|$buildDir/classes/java/main;" + configurations.includeRuntime.join(";"))
             jvmArgs("-Dmald.loader.mods=$buildDir/resources/test|$buildDir/classes/java/test")
