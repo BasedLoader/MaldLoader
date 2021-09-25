@@ -1,6 +1,6 @@
 plugins {
     id("java")
-    id("com.maldloader.gradle.vanilla") version "0.3.0"
+    id("com.maldloader.gradle.vanilla") version "0.3.1-TEST9"
 }
 
 group = "com.maldloader"
@@ -43,20 +43,8 @@ minecraft {
 
     runs {
         server()
-        client() {
-            mainClass("com.maldloader.MinecraftPlugin")
-            def cp = configurations.minecraft.resolve().collect {it.absoluteFile}.join(";")
-            jvmArgs("-Dmald.mc.mods=$cp")
-            jvmArgs("-Dmald.mods=$buildDir/resources/main|$buildDir/classes/java/main;" + configurations.includeRuntime.join(";"))
-            jvmArgs("-Dmald.loader.mods=$buildDir/resources/test|$buildDir/classes/java/test")
-            jvmArgs("-Dmald.dev=true")
-            jvmArgs("-Dmald.main=client")
-            jvmArgs("-Dmald.mc.isClient=true")
-        }
+        client()
     }
-//    staticInjectors("src/main/resources/interfaces.si")
-}
 
-configurations.forEach {
-    println it
+//    staticInjectors("src/main/resources/interfaces.si")
 }
