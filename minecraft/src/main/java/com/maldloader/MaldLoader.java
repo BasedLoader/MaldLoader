@@ -52,7 +52,7 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 		DefaultChildClassLoader classLoader = new DefaultChildClassLoader(loader, mod);
 		loader.offer(classLoader);
 
-		MaldMixinBootstrap.loadMixinMods(this.getMods().values());
+
 	}
 
 	@Override

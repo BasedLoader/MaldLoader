@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import com.maldloader.impl.classloader.MainClassLoaderImpl;
 import org.objectweb.asm.ClassReader;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.launch.platform.container.IContainerHandle;
 import org.spongepowered.asm.logging.ILogger;
 import org.spongepowered.asm.logging.Level;
 import org.spongepowered.asm.logging.LoggerAdapterAbstract;
+import org.spongepowered.asm.logging.LoggerAdapterJava;
 import org.spongepowered.asm.mixin.MixinEnvironment;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformer;
 import org.spongepowered.asm.mixin.transformer.IMixinTransformerFactory;
@@ -30,7 +32,6 @@ import org.spongepowered.asm.service.ITransformerProvider;
 import org.spongepowered.asm.util.ReEntranceLock;
 
 public class MaldMixinService implements IMixinService, IClassProvider, IClassBytecodeProvider, ITransformerProvider, IClassTracker {
-
 	public static MaldMixinService service;
 	public IMixinTransformer transformer;
 
@@ -197,47 +198,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	@Override
 	public ILogger getLogger(String name) { //TODO: better logger
-		return new LoggerAdapterAbstract(name) {
-			@Override
-			public String getType() {
-				return "Mald Loader Mixin Logger";
-			}
-
-			@Override
-			public void catching(Level level, Throwable t) {
-				log(Level.ERROR, "Caught ".concat(t.toString()), t);
-			}
-
-			@Override
-			public void log(Level level, String message, Object... params) {
-				String formattedMessage = String.format(message, params);
-				switch(level) {
-					case INFO:
-					case WARN:
-						System.out.println(formattedMessage);
-						break;
-					case ERROR:
-					case FATAL:
-					case TRACE:
-						System.err.println(formattedMessage);
-						break;
-					default:
-						break;
-				}
-			}
-
-			@Override
-			public void log(Level level, String message, Throwable t) {
-				log(level, message);
-				t.printStackTrace();
-			}
-
-			@Override
-			public <T extends Throwable> T throwing(T t) {
-				log(Level.ERROR, "Throwing ".concat(t.toString()), t);
-				return t;
-			}
-		};
+		return new LoggerAdapterJava("Mald/"+name);
 	}
 
 	@Override

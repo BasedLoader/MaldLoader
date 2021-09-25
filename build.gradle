@@ -17,6 +17,9 @@ allprojects {
             url = 'https://maven.fabricmc.net/'
         }
     }
+
+    // intellij moment
+    tasks.maybeCreate("prepareKotlinBuildScriptModel")
 }
 
 dependencies {

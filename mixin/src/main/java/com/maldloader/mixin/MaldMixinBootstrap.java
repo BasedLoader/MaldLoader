@@ -13,19 +13,6 @@ import java.util.List;
  */
 public class MaldMixinBootstrap implements IMixinServiceBootstrap {
 
-    public static <T extends MixinModMetadata> void loadMixinMods(Collection<T> mods) {
-		MixinService.boot();
-        MixinBootstrap.init();
-        for (MixinModMetadata mod : mods) {
-	        List<String> files = mod.mixinFiles();
-            if(files != null) {
-	            for(String file : mod.mixinFiles()) {
-		            Mixins.addConfiguration(file);
-	            }
-            }
-        }
-    }
-
 	@Override
 	public String getName() {
 		return "MaldLoader";

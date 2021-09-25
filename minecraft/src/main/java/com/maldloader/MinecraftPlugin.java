@@ -26,20 +26,6 @@ public class MinecraftPlugin implements LoaderPlugin {
 
 	@Override
 	public void afterModLoaderInit(LoaderList loader, MainClassLoader classLoader) {
-		classLoader.addClassNodeTransformer(new ClassNodeTransformer() {
-			@Override
-			public void accept(ClassNode node) {
-				IMixinTransformer transformer = MaldMixinService.service.transformer;
-				transformer.transformClass(MixinEnvironment.getDefaultEnvironment(), node.name.replace('/', '.'), node);
-			}
-
-			@Override
-			public boolean transforms(ClassHeader header) {
-				return true;
-			}
-		});
-
-
 		for(ModFiles path : Main.getPathsViaProperty("mald.mc", null)) {
 			try {
 				path.addTo(classLoader);
