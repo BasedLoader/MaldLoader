@@ -8,6 +8,8 @@ group = "com.maldloader"
 version = "0.1"
 
 allprojects {
+    group 'com.maldloader'
+    version '0.1'
     repositories {
         mavenCentral()
         maven {

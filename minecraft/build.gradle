@@ -72,12 +72,7 @@ repositories {
 dependencies {
     api rootProject
     includeRuntime 'com.google.code.gson:gson:2.8.8'
-    includeRuntime('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'asm'
-        exclude module: 'asm-tree'
-    }
+    includeRuntime project(":mixin")
 
     testMinecraft ag.client(mc_vers)
     testMinecraft ag.libraries(mc_vers)

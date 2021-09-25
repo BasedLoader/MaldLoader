@@ -1,5 +1,7 @@
 package com.maldloader.v0.api.modloader;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 /**
