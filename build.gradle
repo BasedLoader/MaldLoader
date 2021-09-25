@@ -8,8 +8,9 @@ group = "com.maldloader"
 version = "0.1"
 
 allprojects {
+    apply plugin: "maven-publish"
     group 'com.maldloader'
-    version '0.1'
+    version '0.2'
     repositories {
         mavenCentral()
         maven {
@@ -26,4 +27,28 @@ dependencies {
     api 'org.jetbrains:annotations:22.0.0'
     api 'org.ow2.asm:asm:9.2'
     api 'org.ow2.asm:asm-tree:9.2'
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            // add all the jars that should be included when publishing to maven
+            artifact(jar) {
+                builtBy build
+            }
+        }
+    }
+    // select the repositories you want to publish to
+    repositories {
+        maven {
+            def mavenUrl = project.hasProperty('maven_url') ? project.property('maven_url') : ""
+            url mavenUrl
+            if (mavenUrl.startsWith("http")) {
+                credentials {
+                    username project.hasProperty('maven_username') ? project.property('maven_username') : ""
+                    password project.hasProperty('maven_password') ? project.property('maven_password') : ""
+                }
+            }
+        }
+    }
 }
