@@ -29,8 +29,8 @@ public class MinecraftPlugin implements LoaderPlugin {
 		classLoader.addClassNodeTransformer(new ClassNodeTransformer() {
 			@Override
 			public void accept(ClassNode node) {
-				IMixinTransformer transformer = MaldMixinService.transformer;
-				//transformer.transformClass(MixinEnvironment.getCurrentEnvironment(), node.name.replace('/', '.'), node);
+				IMixinTransformer transformer = MaldMixinService.service.transformer;
+				transformer.transformClass(MixinEnvironment.getDefaultEnvironment(), node.name.replace('/', '.'), node);
 			}
 
 			@Override

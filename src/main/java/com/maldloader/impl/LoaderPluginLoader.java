@@ -53,9 +53,9 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 	public Map<String, LoaderPlugin> init(ClassLoader parent, ModClassLoader[] ref) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		Collection<Meta> metas = this.getMods().values();
 		MainClassLoaderImpl.DynURLClassLoader loader = new MainClassLoaderImpl.DynURLClassLoader(new URL[0]);
-		for(Meta meta : metas) {
-			for(Path file : meta.path.files) {
-				loader.addURL(file.toUri().toURL());
+		for(ModFiles file : this.getFiles()) {
+			for(Path path : file.files) {
+				loader.addURL(path.toUri().toURL());
 			}
 		}
 		ModClassLoader mods = new ModClassLoader(parent, loader);

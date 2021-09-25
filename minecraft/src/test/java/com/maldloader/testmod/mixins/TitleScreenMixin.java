@@ -9,9 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Main.class)
 public class TitleScreenMixin {
-
-	@Inject(method = "<init>()V", at = @At("TAIL"))
-	private void testMixin(CallbackInfo ci) {
-		System.out.println("Please Continue to mald, seethe and cope");
+	@Inject(method = "main", at = @At("HEAD"))
+	private static void testMixin(CallbackInfo ci) {
+		for(int i = 0; i < 20; i++) {
+			System.out.println("Please Continue to mald, seethe and cope");
+		}
 	}
 }

@@ -31,8 +31,14 @@ import org.spongepowered.asm.util.ReEntranceLock;
 
 public class MaldMixinService implements IMixinService, IClassProvider, IClassBytecodeProvider, ITransformerProvider, IClassTracker {
 
-	public static IMixinTransformer transformer;
+	public static MaldMixinService service;
+	public IMixinTransformer transformer;
+
 	private final ReEntranceLock lock = new ReEntranceLock(1);
+
+	public MaldMixinService() {
+		service = this;
+	}
 
 	@Override
 	public ClassNode getClassNode(String name) throws IOException {
@@ -79,7 +85,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	@Override
 	public String getClassRestrictions(String className) {
-		return null;
+		return "";
 	}
 
 	@Override
@@ -250,7 +256,7 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 
 	public byte[] getClassBytes(String rawName, boolean runTransformers) throws IOException {
 		String name = rawName.replace('.', '/') + ".class";
-		try(InputStream iStream = this.getClass().getClassLoader().getResourceAsStream(name)) {
+		try(InputStream iStream = MainClassLoaderImpl.instance.getResourceAsStream(name)) {
 			byte[] bytes = new byte[1024];
 			int read, offset = 0;
 			while((read = iStream.read(bytes, offset, bytes.length - offset)) != -1) {
@@ -265,6 +271,6 @@ public class MaldMixinService implements IMixinService, IClassProvider, IClassBy
 	}
 
 	static IMixinTransformer getTransformer() {
-		return transformer;
+		return service.transformer;
 	}
 }

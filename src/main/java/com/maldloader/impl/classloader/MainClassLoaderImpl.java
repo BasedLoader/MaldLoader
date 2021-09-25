@@ -30,9 +30,8 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 		registerAsParallelCapable();
 	}
 
-	// does not require transformation, this is basically just used for resources
-	final DynURLClassLoader mainLoader;
-	final ModClassLoader loader;
+	final DynURLClassLoader modJarContainer;
+	final ModClassLoader mainLoader;
 	final List<ClassLoader> loaders = new ArrayList<>();
 	final MultiBufferTransformer transformer = new MultiBufferTransformer();
 	final AsmTransformerHelper helper = new AsmTransformerHelper();
@@ -40,12 +39,12 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 
 	public MainClassLoaderImpl(ClassLoader parent) {
 		super(new ModClassLoader(parent, new DynURLClassLoader(new URL[] {})));
-		this.loader = (ModClassLoader) this.getParent();
-		this.mainLoader = (DynURLClassLoader) (this.loader.mods);
+		this.mainLoader = (ModClassLoader) this.getParent();
+		this.modJarContainer = (DynURLClassLoader) (this.mainLoader.mods);
 		this.transformer.transformers.add(this.helper);
-		this.loader.setTransformer(this.transformer);
-		this.loader.setPreParent(this.pre);
-		this.loader.setPostParent(this.post);
+		this.mainLoader.setTransformer(this.transformer);
+		this.mainLoader.setPreParent(this.pre);
+		this.mainLoader.setPostParent(this.post);
 		instance = this;
 	}
 
@@ -86,12 +85,12 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 
 	@Override
 	public Class<?> define(String name, byte[] buf, int off, int len) {
-		return this.loader.define(name, buf, off, len);
+		return this.mainLoader.define(name, buf, off, len);
 	}
 
 	@Override
 	public void offer(URL url) {
-		this.mainLoader.addURL(url);
+		this.modJarContainer.addURL(url);
 	}
 
 	@Override
@@ -169,7 +168,7 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 		}
 
 		try {
-			return fallback.get(this.loader, name);
+			return fallback.get(this.mainLoader, name);
 		} catch(ClassNotFoundException e) {
 			return null;
 		} catch(IOException e) {

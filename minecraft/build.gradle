@@ -1,4 +1,4 @@
-plugins {
+/*plugins {
     id("java")
     id("com.maldloader.gradle.vanilla") version "0.3.0"
 }
@@ -40,4 +40,72 @@ minecraft {
     }
 
 //    staticInjectors("src/main/resources/interfaces.si")
+}
+        */
+
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'amalgamation-minecraft' version "1.0.0"
+}
+
+version '1.0.0'
+def mc_vers = "1.16.5"
+
+configurations {
+    testMinecraft {}
+    includeRuntime {} // todo add JiJ
+    testImplementation.extendsFrom(testMinecraft)
+    implementation.extendsFrom(includeRuntime)
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+}
+
+dependencies {
+    api rootProject
+    includeRuntime 'com.google.code.gson:gson:2.8.8'
+    includeRuntime('net.fabricmc:sponge-mixin:0.10.0+mixin.0.8.4.snapshot') {
+        exclude module: 'launchwrapper'
+        exclude module: 'guava'
+        exclude module: 'asm'
+        exclude module: 'asm-tree'
+    }
+
+    testMinecraft ag.client(mc_vers)
+    testMinecraft ag.libraries(mc_vers)
+}
+
+task testDiff(type: JavaExec) {
+    group = "tests"
+    description = "Test Diff:tm:"
+    classpath sourceSets.main.runtimeClasspath
+    main = "com.maldloader.MinecraftPlugin"
+    def natives = ag.natives(mc_vers)
+    //systemProperty("fabric.development", true)
+    def cp = configurations.testMinecraft.resolve().collect {it.absoluteFile}.join(";")
+    println cp
+    systemProperty("mald.mc.mods", cp)
+    systemProperty("mald.dev", true)
+    systemProperty("mald.main", "client")
+    systemProperty("mald.loader.mods", "$buildDir/resources/test|$buildDir/classes/java/test")
+    def cp2 = "$buildDir/resources/main|$buildDir/classes/java/main;" + configurations.includeRuntime.join(";")
+    println cp2
+    systemProperty("mald.mods", cp2)
+    //systemProperty("fabric.gameVersion", '1.17.1')
+    systemProperty("java.library.globalCache", natives)
+    systemProperty("org.lwjgl.librarypath", natives)
+    systemProperty("mald.mc.isClient", true)
+    def assets = ag.assets(mc_vers)
+    args("--assetIndex", assets.assetIndex, "--assetsDir", assets.assetsDir, "--version", mc_vers, "--accessToken", "FML")
+    workingDir("$rootDir/run")
+    dependsOn tasks.testClasses
+    dependsOn tasks.processTestResources
 }

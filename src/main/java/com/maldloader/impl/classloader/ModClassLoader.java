@@ -2,15 +2,26 @@ package com.maldloader.impl.classloader;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.JarURLConnection;
 import java.net.URL;
+import java.net.URLConnection;
+import java.nio.file.FileSystemNotFoundException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.CodeSource;
+import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.jar.Manifest;
 
 import com.maldloader.impl.util.BiEnumeration;
+import com.maldloader.impl.util.ProtectionDomainFinder;
+import com.maldloader.v0.api.NullClassLoader;
 import com.maldloader.v0.api.classloader.ExtendedClassLoader;
 import com.maldloader.v0.api.transformer.Buf;
 import com.maldloader.v0.api.transformer.BufferTransformer;
 import com.maldloader.v0.api.transformer.LazyDefiner;
+import com.sun.jndi.toolkit.url.UrlUtil;
 import org.jetbrains.annotations.Nullable;
 
 public class ModClassLoader extends ExtendedClassLoader.Secure {
@@ -18,6 +29,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 		registerAsParallelCapable();
 	}
 
+	final ProtectionDomainFinder finder = new ProtectionDomainFinder();
 	final ClassLoader mods;
 	BufferTransformer transformer = Buf::new;
 	LazyDefiner preParent = name -> null, postParent = name -> null;
@@ -29,7 +41,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 	}
 
 	public ModClassLoader(ClassLoader mods) {
-		this.mods = mods;
+		this(NullClassLoader.INSTANCE, mods);
 	}
 
 	@Override
@@ -77,13 +89,16 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 			if(c != null) {
 				return c;
 			}
-			InputStream stream = this.mods.getResourceAsStream(name.replace('.', '/') + ".class");
-			if(stream != null) {
+			String clsName = name.replace('.', '/') + ".class";
+			URL resource = this.mods.getResource(clsName);
+			if(resource != null) {
 				try {
+					InputStream stream = resource.openStream();
 					int len = this.readAll(stream, this.readBuffer);
 					Buf buf = this.transformer.transform(this.readBuffer, 0, len);
 					if(buf != null) {
-						c = this.defineClass(name, buf.code, buf.off, buf.len);
+						ProtectionDomainFinder.Metadata metadata = this.finder.getMetadata(name, resource);
+						c = this.defineClass(name, buf.code, buf.off, buf.len, metadata.codeSource);
 					}
 				} catch(IOException e) {
 					throw Main.rethrow(e);
@@ -99,8 +114,19 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 					}
 				}
 			}
-			if(c != null && resolve) {
-				this.resolveClass(c);
+
+			if(c != null) {
+				int pkgDelimiterPos = name.lastIndexOf('.');
+				if(pkgDelimiterPos > 0) {
+					String pkgString = name.substring(0, pkgDelimiterPos);
+					if(this.getPackage(pkgString) == null) {
+						this.definePackage(pkgString, null, null, null, null, null, null, null);
+					}
+				}
+
+				if(resolve) {
+					this.resolveClass(c);
+				}
 			}
 
 			if(c == null) {

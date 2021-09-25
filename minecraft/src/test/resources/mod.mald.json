@@ -1,3 +1,4 @@
 {
-  "id": "mald"
+  "id": "mald",
+  "mixins": ["examplemod.mixins.json"]
 }
