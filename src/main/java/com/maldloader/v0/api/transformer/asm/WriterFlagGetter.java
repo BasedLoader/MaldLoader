@@ -18,7 +18,7 @@ public interface WriterFlagGetter {
 
 		@Override
 		public int getClassWriterFlags(ClassHeader header) {
-			return 0;
+			return this.maxes;
 		}
 	}
 }
