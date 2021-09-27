@@ -22,6 +22,7 @@ public class MixinLoaderPlugin implements LoaderPlugin {
 	public void afterModLoaderInit(LoaderList loader, MainClassLoader classLoader) {
 		// todo fork mixin, or reflect into mixin to figure out what classes it actually transforms
 		classLoader.addWriterFlags(WriterFlagGetter.StaticAsmFlags.MAXES);
+		classLoader.addWriterFlags(WriterFlagGetter.StaticAsmFlags.FRAMES);
 		classLoader.addClassNodeTransformer(new ClassNodeTransformer() {
 			@Override
 			public void accept(ClassNode node) {
