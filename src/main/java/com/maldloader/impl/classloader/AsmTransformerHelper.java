@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.maldloader.v0.api.transformer.Buf;
 import com.maldloader.v0.api.transformer.BufferTransformer;
-import com.maldloader.v0.api.transformer.asm.ReaderFlagGetter;
+import com.maldloader.v0.api.transformer.asm.WriterFlagGetter;
 import com.maldloader.v0.api.transformer.asm.ClassHeader;
 import com.maldloader.v0.api.transformer.asm.ClassNodeTransformer;
 import com.maldloader.v0.api.transformer.asm.ClassVisitorTransformer;
@@ -22,7 +22,7 @@ import org.objectweb.asm.tree.ClassNode;
 public class AsmTransformerHelper implements BufferTransformer {
 	final List<ClassVisitorTransformer> visit = new ArrayList<>();
 	final List<ClassNodeTransformer> node = new ArrayList<>();
-	final Set<ReaderFlagGetter> flags = new HashSet<>();
+	final Set<WriterFlagGetter> flags = new HashSet<>();
 
 	@Override
 	public @Nullable Buf transform(byte[] code, int off, int len) {
@@ -32,7 +32,7 @@ public class AsmTransformerHelper implements BufferTransformer {
 		ClassHeader header = new ClassHeader(reader.getAccess(), name, superName, interfaces);
 
 		int writerFlags = 0;
-		for(ReaderFlagGetter flags : this.flags) {
+		for(WriterFlagGetter flags : this.flags) {
 			writerFlags |= flags.getClassWriterFlags(header);
 		}
 

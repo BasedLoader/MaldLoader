@@ -19,7 +19,7 @@ import com.maldloader.v0.api.transformer.BufferTransformer;
 import com.maldloader.v0.api.transformer.LazyDefiner;
 import com.maldloader.v0.api.transformer.asm.ClassNodeTransformer;
 import com.maldloader.v0.api.transformer.asm.ClassVisitorTransformer;
-import com.maldloader.v0.api.transformer.asm.ReaderFlagGetter;
+import com.maldloader.v0.api.transformer.asm.WriterFlagGetter;
 import org.jetbrains.annotations.Nullable;
 
 public class MainClassLoaderImpl extends SecureClassLoader implements MainClassLoader {
@@ -79,7 +79,7 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 	}
 
 	@Override
-	public void addReaderFlagGetter(ReaderFlagGetter getter) {
+	public void addWriterFlags(WriterFlagGetter getter) {
 		this.helper.flags.add(getter);
 	}
 

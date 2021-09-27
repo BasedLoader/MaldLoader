@@ -8,7 +8,7 @@ import com.maldloader.v0.api.transformer.BufferTransformer;
 import com.maldloader.v0.api.transformer.LazyDefiner;
 import com.maldloader.v0.api.transformer.asm.ClassNodeTransformer;
 import com.maldloader.v0.api.transformer.asm.ClassVisitorTransformer;
-import com.maldloader.v0.api.transformer.asm.ReaderFlagGetter;
+import com.maldloader.v0.api.transformer.asm.WriterFlagGetter;
 import org.jetbrains.annotations.Nullable;
 
 public interface MainClassLoader extends ExtendedClassLoader {
@@ -33,7 +33,7 @@ public interface MainClassLoader extends ExtendedClassLoader {
 	/**
 	 * This is necessary if u want to compute max or compute frames, do not always return max or frames though
 	 */
-	void addReaderFlagGetter(ReaderFlagGetter getter);
+	void addWriterFlags(WriterFlagGetter getter);
 
 	Class<?> define(String name, byte[] buf, int off, int len);
 

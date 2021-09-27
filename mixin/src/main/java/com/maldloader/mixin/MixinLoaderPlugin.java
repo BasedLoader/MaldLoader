@@ -9,6 +9,7 @@ import com.maldloader.v0.api.modloader.ModMetadata;
 import com.maldloader.v0.api.plugin.LoaderPlugin;
 import com.maldloader.v0.api.transformer.asm.ClassHeader;
 import com.maldloader.v0.api.transformer.asm.ClassNodeTransformer;
+import com.maldloader.v0.api.transformer.asm.WriterFlagGetter;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.launch.MixinBootstrap;
 import org.spongepowered.asm.mixin.MixinEnvironment;
@@ -19,6 +20,8 @@ import org.spongepowered.asm.service.MixinService;
 public class MixinLoaderPlugin implements LoaderPlugin {
 	@Override
 	public void afterModLoaderInit(LoaderList loader, MainClassLoader classLoader) {
+		// todo fork mixin, or reflect into mixin to figure out what classes it actually transforms
+		classLoader.addWriterFlags(WriterFlagGetter.StaticAsmFlags.MAXES);
 		classLoader.addClassNodeTransformer(new ClassNodeTransformer() {
 			@Override
 			public void accept(ClassNode node) {
