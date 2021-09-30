@@ -26,7 +26,6 @@ jobs:
 
       # Publish To Our maven
       - name: Publish with Gradle (snapshot)
-          if: "${{ runner.os == 'Linux' && env.STATUS != 'release' && github.event_name == 'push' && github.ref == 'refs/heads/master' }}"
           run: ./gradlew publish
           env:
             ORG_GRADLE_PROJECT_maven_url: "${{ secrets.MAVEN_URL }}"
