@@ -25,9 +25,9 @@ jobs:
         run: ./gradlew build
 
       # Publish To Our maven
-      - name: Publish with Gradle (snapshot)
-          run: ./gradlew publish
-          env:
+      - name: Publish with Gradle (Snapshot)
+        run: ./gradlew publish
+        env:
             ORG_GRADLE_PROJECT_maven_url: "${{ secrets.MAVEN_URL }}"
             ORG_GRADLE_PROJECT_maven_username: "${{ secrets.MAVEN_USERNAME }}"
             ORG_GRADLE_PROJECT_maven_password: "${{ secrets.MAVEN_PASSWORD }}"
