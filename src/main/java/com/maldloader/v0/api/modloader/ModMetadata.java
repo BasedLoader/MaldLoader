@@ -47,7 +47,6 @@ public interface ModMetadata {
 			return this.version;
 		}
 
-
 		public String[] getAuthors() {
 			return this.authors;
 		}
