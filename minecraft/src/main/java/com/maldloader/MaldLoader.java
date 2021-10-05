@@ -37,22 +37,21 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 
 	@Override
 	public void init(LoaderList maldLoader, MainClassLoader loader) throws MalformedURLException {
-		DynUrlLoader urlClassLoader = new DynUrlLoader(new URL[0]);
+		//DynUrlLoader urlClassLoader = new DynUrlLoader(new URL[0]);
 		List<ModFiles> files = this.getFiles();
 		for(ModFiles file : files) {
 			for(Path path : file.files) {
-				urlClassLoader.addURL(path.toUri().toURL());
+				loader.offer(path.toUri().toURL());
 			}
 		}
 
-		ModClassLoader mod = new ModClassLoader(NullClassLoader.INSTANCE, urlClassLoader);
+		// this has to be adjusted.. hmm...
+		//ModClassLoader mod = new ModClassLoader(loader.instance(), urlClassLoader);
 
 		// mod transformation can be done here
 
-		DefaultChildClassLoader classLoader = new DefaultChildClassLoader(loader, mod);
-		loader.offer(classLoader);
-
-
+		//DefaultChildClassLoader classLoader = new DefaultChildClassLoader(loader, mod);
+		//loader.offer(classLoader);
 	}
 
 	@Override

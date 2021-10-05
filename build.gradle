@@ -21,6 +21,8 @@ allprojects {
 
     // intellij moment
     tasks.maybeCreate("prepareKotlinBuildScriptModel")
+
+
 }
 
 dependencies {

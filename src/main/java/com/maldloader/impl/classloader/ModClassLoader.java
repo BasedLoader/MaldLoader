@@ -17,13 +17,14 @@ import java.util.jar.Manifest;
 import com.maldloader.impl.util.BiEnumeration;
 import com.maldloader.impl.util.ProtectionDomainFinder;
 import com.maldloader.v0.api.NullClassLoader;
+import com.maldloader.v0.api.classloader.DefaultChildClassLoader;
 import com.maldloader.v0.api.classloader.ExtendedClassLoader;
 import com.maldloader.v0.api.transformer.Buf;
 import com.maldloader.v0.api.transformer.BufferTransformer;
 import com.maldloader.v0.api.transformer.LazyDefiner;
 import org.jetbrains.annotations.Nullable;
 
-public class ModClassLoader extends ExtendedClassLoader.Secure {
+public class ModClassLoader extends ExtendedClassLoader.Secure implements DefaultChildClassLoader.Access {
 	static {
 		registerAsParallelCapable();
 	}
@@ -82,7 +83,7 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 	}
 
 	@Override
-	protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+	public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
 		synchronized(this.getClassLoadingLock(name)) {
 			Class<?> c = this.findLoadedClass(name);
 			if(c != null) {
@@ -171,6 +172,11 @@ public class ModClassLoader extends ExtendedClassLoader.Secure {
 		} else {
 			return super.getResourceAsStream(name);
 		}
+	}
+
+	@Override
+	public Class<?> loadClass0(String name, boolean resolve) throws ClassNotFoundException {
+		return this.loadClass(name, resolve);
 	}
 
 	int readAll(InputStream stream, byte[] buf) throws IOException {
