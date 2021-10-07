@@ -46,6 +46,7 @@ public class MainClassLoaderImpl extends SecureClassLoader implements MainClassL
 		super(loaderPlugins);
 		this.modJarContainer = new DynURLClassLoader(new URL[0]);
 		this.defaultLoader = this.offerWrapped(this.modJarContainer);
+		this.transformer.add(this.helper);
 		if(displace) {
 			if(instance == null) {
 				instance = this;
