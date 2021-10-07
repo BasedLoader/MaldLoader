@@ -1,4 +1,4 @@
-package com.maldloader.impl.classloader;
+package com.maldloader.v0.api.transform;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,11 @@ import org.jetbrains.annotations.Nullable;
 
 public class MultiBufferTransformer implements BufferTransformer {
 	final List<BufferTransformer> transformers = new ArrayList<>();
+
+	public MultiBufferTransformer add(BufferTransformer transformer) {
+		this.transformers.add(transformer);
+		return this;
+	}
 
 	@Override
 	public @Nullable Buf transform(byte[] code, int off, int len) {

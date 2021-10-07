@@ -1,4 +1,4 @@
-package com.maldloader.impl.classloader;
+package com.maldloader.v0.api.transform;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +23,24 @@ public class AsmTransformerHelper implements BufferTransformer {
 	final List<ClassVisitorTransformer> visit = new ArrayList<>();
 	final List<ClassNodeTransformer> node = new ArrayList<>();
 	final Set<WriterFlagGetter> flags = new HashSet<>();
+
+	public AsmTransformerHelper() {
+	}
+
+	public AsmTransformerHelper addVisitorTransformer(ClassVisitorTransformer transformer) {
+		this.visit.add(transformer);
+		return this;
+	}
+
+	public AsmTransformerHelper addClassNodeTransformer(ClassNodeTransformer transformer) {
+		this.node.add(transformer);
+		return this;
+	}
+
+	public AsmTransformerHelper addFlagTransformer(WriterFlagGetter getter) {
+		this.flags.add(getter);
+		return this;
+	}
 
 	@Override
 	public @Nullable Buf transform(byte[] code, int off, int len) {

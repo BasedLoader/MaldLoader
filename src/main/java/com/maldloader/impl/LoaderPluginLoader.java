@@ -2,7 +2,6 @@ package com.maldloader.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -15,7 +14,8 @@ import java.util.Objects;
 import java.util.Properties;
 
 import com.maldloader.impl.classloader.MainClassLoaderImpl;
-import com.maldloader.impl.classloader.ModClassLoader;
+import com.maldloader.v0.api.classloader.DynURLClassLoader;
+import com.maldloader.v0.api.classloader.ModClassLoader;
 import com.maldloader.v0.api.modloader.AbstractModLoader;
 import com.maldloader.v0.api.modloader.ModFiles;
 import com.maldloader.v0.api.plugin.LoaderPlugin;
@@ -52,8 +52,7 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 
 
 	public Map<String, LoaderPlugin> init(ClassLoader parent, ModClassLoader[] ref) throws MalformedURLException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-		Collection<Meta> metas = this.getMods().values();
-		MainClassLoaderImpl.DynURLClassLoader loader = new MainClassLoaderImpl.DynURLClassLoader(new URL[0]);
+		DynURLClassLoader loader = new DynURLClassLoader(new URL[0]);
 		for(ModFiles file : this.getFiles()) {
 			for(Path path : file.files) {
 				loader.addURL(path.toUri().toURL());
@@ -62,7 +61,7 @@ public class LoaderPluginLoader extends AbstractModLoader<LoaderPluginLoader.Met
 		ModClassLoader mods = new ModClassLoader(parent, loader);
 		ref[0] = mods;
 		Map<String, LoaderPlugin> plugins = new HashMap<>();
-		for(Meta meta : metas) {
+		for(Meta meta : this.getMods().values()) {
 			Class<?> cls = Class.forName(meta.pluginClass, false, mods);
 			if(LoaderPlugin.class.isAssignableFrom(cls)) {
 				LoaderPlugin plugin = (LoaderPlugin) cls.newInstance();

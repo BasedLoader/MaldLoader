@@ -13,13 +13,9 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 import com.google.gson.Gson;
-import com.maldloader.impl.classloader.DynUrlLoader;
+import com.maldloader.v0.api.classloader.DynURLClassLoader;
 import com.maldloader.impl.classloader.Main;
-import com.maldloader.impl.classloader.ModClassLoader;
-import com.maldloader.mixin.MaldMixinBootstrap;
 import com.maldloader.v0.api.LoaderList;
-import com.maldloader.v0.api.NullClassLoader;
-import com.maldloader.v0.api.classloader.DefaultChildClassLoader;
 import com.maldloader.v0.api.classloader.MainClassLoader;
 import com.maldloader.v0.api.modloader.AbstractModLoader;
 import com.maldloader.v0.api.modloader.ModFiles;
@@ -28,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MaldLoader extends AbstractModLoader<MaldMod> {
 	public static final Path INCLUDES = Paths.get("mods", "includes");
-	public static final Logger LOGGER = LogManager.getLogManager().getLogger("MaldLoader-Minecraft");
+	public static final Logger LOGGER = Logger.getLogger("MaldLoader/Minecraft");
 	public static final Gson GSON = new Gson();
 
 	public MaldLoader(LoaderPlugin plugin) {
@@ -37,21 +33,16 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 
 	@Override
 	public void init(LoaderList maldLoader, MainClassLoader loader) throws MalformedURLException {
-		//DynUrlLoader urlClassLoader = new DynUrlLoader(new URL[0]);
+		DynURLClassLoader urlClassLoader = new DynURLClassLoader(new URL[0]);
 		List<ModFiles> files = this.getFiles();
 		for(ModFiles file : files) {
 			for(Path path : file.files) {
 				loader.offer(path.toUri().toURL());
 			}
 		}
+		LOGGER.info("Loaded " + files.size() + " mods!");
 
-		// this has to be adjusted.. hmm...
-		//ModClassLoader mod = new ModClassLoader(loader.instance(), urlClassLoader);
-
-		// mod transformation can be done here
-
-		//DefaultChildClassLoader classLoader = new DefaultChildClassLoader(loader, mod);
-		//loader.offer(classLoader);
+		//loader.offerWrapped(urlClassLoader);
 	}
 
 	@Override

@@ -1,43 +1,38 @@
-package com.maldloader.impl.classloader;
+package com.maldloader.v0.api.classloader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.JarURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.security.CodeSource;
-import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.jar.Manifest;
 
+import com.maldloader.v0.api.transform.AsmTransformerHelper;
+import com.maldloader.impl.classloader.Main;
+import com.maldloader.v0.api.transform.MultiBufferTransformer;
+import com.maldloader.v0.api.transform.MultiLazyDefiner;
 import com.maldloader.impl.util.BiEnumeration;
 import com.maldloader.impl.util.ProtectionDomainFinder;
 import com.maldloader.v0.api.NullClassLoader;
-import com.maldloader.v0.api.classloader.DefaultChildClassLoader;
-import com.maldloader.v0.api.classloader.ExtendedClassLoader;
 import com.maldloader.v0.api.transformer.Buf;
-import com.maldloader.v0.api.transformer.BufferTransformer;
-import com.maldloader.v0.api.transformer.LazyDefiner;
 import org.jetbrains.annotations.Nullable;
 
-public class ModClassLoader extends ExtendedClassLoader.Secure implements DefaultChildClassLoader.Access {
+public class ModClassLoader extends ExtendedClassLoader.Secure {
 	static {
 		registerAsParallelCapable();
 	}
 
 	final ProtectionDomainFinder finder = new ProtectionDomainFinder();
 	final ClassLoader mods;
-	BufferTransformer transformer = Buf::new;
-	LazyDefiner preParent = name -> null, postParent = name -> null;
+	final MultiBufferTransformer transformer = new MultiBufferTransformer();
+	final AsmTransformerHelper helper = new AsmTransformerHelper();
+	final MultiLazyDefiner preParent = new MultiLazyDefiner(), postParent = new MultiLazyDefiner();
+
 	byte[] readBuffer = new byte[8196];
 
 	public ModClassLoader(ClassLoader parent, ClassLoader mods) {
 		super(parent);
 		this.mods = mods;
+		this.transformer.add(this.helper);
 	}
 
 	public ModClassLoader(ClassLoader mods) {
@@ -51,19 +46,20 @@ public class ModClassLoader extends ExtendedClassLoader.Secure implements Defaul
 		}
 	}
 
-	public ModClassLoader setTransformer(BufferTransformer transformer) {
-		this.transformer = transformer;
-		return this;
+	public MultiBufferTransformer getTransformer() {
+		return this.transformer;
 	}
 
-	public ModClassLoader setPreParent(LazyDefiner preParent) {
-		this.preParent = preParent;
-		return this;
+	public AsmTransformerHelper getAsmTransformer() {
+		return this.helper;
 	}
 
-	public ModClassLoader setPostParent(LazyDefiner postParent) {
-		this.postParent = postParent;
-		return this;
+	public MultiLazyDefiner getPreParent() {
+		return this.preParent;
+	}
+
+	public MultiLazyDefiner getPostParent() {
+		return this.postParent;
 	}
 
 	public Class<?> define(String name, byte[] buf, int off, int len) {
@@ -131,6 +127,10 @@ public class ModClassLoader extends ExtendedClassLoader.Secure implements Defaul
 
 			if(c == null) {
 				c = super.loadClass(name, resolve);
+			}
+
+			if(c == null) {
+				throw new ClassNotFoundException(name);
 			}
 			return c;
 		}

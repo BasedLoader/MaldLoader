@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 
 import com.maldloader.impl.LoaderPluginLoader;
 import com.maldloader.v0.api.LoaderList;
+import com.maldloader.v0.api.classloader.ModClassLoader;
 import com.maldloader.v0.api.modloader.ModFiles;
 import com.maldloader.v0.api.modloader.ModLoader;
 import com.maldloader.v0.api.plugin.LoaderPlugin;
@@ -83,14 +84,14 @@ public class Main {
 
 	public static void main(String[] args) throws Throwable {
 		List<ModFiles> loaderPlugins = getPathsViaProperty(LoaderPluginLoader.MALD, LoaderPluginLoader.MALD + "_plugins");
-		launch(loaderPlugins, args);
+		launch(loaderPlugins).accept(args);
 	}
 
-	public static void launch(List<ModFiles> loaderPlugins, String[] args) throws Throwable {
+	public static Consumer<String[]> launch(List<ModFiles> loaderPlugins) throws Throwable {
 		MainClassLoaderImpl[] main = {null};
 		Method method = loadFromFile(loaderPlugins, main);
 
-		// a big hack to minimize the stacktrace size
+		// a big hack to minimize the stacktrace size as opposed to reflection
 		ClassWriter writer = new ClassWriter(0);
 		String[] interfaces = new String[] {"java/util/function/Consumer"};
 		writer.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC, LoaderPluginLoader.MALD + "/Launcher_Generated", null, "java/lang/Object", interfaces);
@@ -118,8 +119,7 @@ public class Main {
 		Class<?> type = main[0].define(name, code, 0, code.length);
 		Thread thread = Thread.currentThread();
 		thread.setContextClassLoader(main[0]);
-		Consumer<String[]> consumer = (Consumer<String[]>) type.newInstance();
-		consumer.accept(args);
+		return (Consumer<String[]>) type.newInstance();
 	}
 
 	public static Method loadFromFile(List<ModFiles> loaderPlugins, MainClassLoaderImpl[] ref) throws Throwable {
@@ -132,7 +132,7 @@ public class Main {
 				plugin.offerModLoaders(loaders::add);
 			}
 
-			MainClassLoaderImpl main = new MainClassLoaderImpl(ref1[0]);
+			MainClassLoaderImpl main = new MainClassLoaderImpl(ref1[0], true);
 			LoaderList mald = new LoaderList(plugins, loaders);
 
 			for(ModLoader<?> loader : loaders) {

@@ -1,4 +1,4 @@
-package com.maldloader.impl.classloader;
+package com.maldloader.v0.api.classloader;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -6,16 +6,16 @@ import java.net.URLStreamHandlerFactory;
 
 import com.maldloader.v0.api.NullClassLoader;
 
-public class DynUrlLoader extends URLClassLoader {
-	public DynUrlLoader(URL[] urls, ClassLoader parent) {
+public class DynURLClassLoader extends URLClassLoader {
+	public DynURLClassLoader(URL[] urls, ClassLoader parent) {
 		super(urls, parent);
 	}
 
-	public DynUrlLoader(URL[] urls) {
+	public DynURLClassLoader(URL[] urls) {
 		super(urls, NullClassLoader.INSTANCE);
 	}
 
-	public DynUrlLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
+	public DynURLClassLoader(URL[] urls, ClassLoader parent, URLStreamHandlerFactory factory) {
 		super(urls, parent, factory);
 	}
 
