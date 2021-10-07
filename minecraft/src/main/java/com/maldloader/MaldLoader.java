@@ -23,12 +23,14 @@ import com.maldloader.v0.api.plugin.LoaderPlugin;
 import org.jetbrains.annotations.Nullable;
 
 public class MaldLoader extends AbstractModLoader<MaldMod> {
+	private static MaldLoader INSTANCE;
 	public static final Path INCLUDES = Paths.get("mods", "includes");
 	public static final Logger LOGGER = Logger.getLogger("MaldLoader/Minecraft");
 	public static final Gson GSON = new Gson();
 
 	public MaldLoader(LoaderPlugin plugin) {
 		super(plugin);
+		INSTANCE = this;
 	}
 
 	@Override
@@ -82,5 +84,13 @@ public class MaldLoader extends AbstractModLoader<MaldMod> {
 			LOGGER.warning("Two mods with version " + a.getVersion() + " choosing a random one!");
 		}
 		return av.compareTo(bv) > 0 ? a : b;
+	}
+
+	public MaldMod getMod(String modId) {
+		return INSTANCE.getMods().get(modId);
+	}
+
+	public static MaldLoader getInstance() {
+		return INSTANCE;
 	}
 }
